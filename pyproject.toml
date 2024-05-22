@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "tbot"
+version = "0.1.0"
+description = "Telegram bot template"
+authors = ["Sumin Ivan <sumin.ivan01@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+aiogram = "^3.4.1"
+pydantic-settings = "^2.2.1"
+aiogram-dialog = "^2.1.0"
+sqlalchemy = "^2.0.28"
+pyjwt = {extras = ["crypto"], version = "^2.8.0"}
+aiohttp = {extras = ["speedups"], version = "^3.9.5"}
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
