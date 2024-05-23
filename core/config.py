@@ -162,7 +162,7 @@ class ConfigAPI(object):
     def __init__(self):
         self.__login_superuser = os.getenv("AUTH_SUPERUSER")
         self.__password_superuser = os.getenv("AUTH_PASSWORD")
-        self.__base_url = os.getenv("BASE_URL", 'https://127.0.0.1:8000/')
+        self.__base_url = os.getenv("BASE_URL", 'http://127.0.0.1:8000/')
         self.__prefix_login = os.getenv("PREFIX_LOGIN", 'auth/v1/')
         self.__prefix_db = os.getenv("PREFIX_DB", 'api/v1/')
 
