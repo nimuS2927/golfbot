@@ -18,6 +18,8 @@ class RegistrationBot(StatesGroup):
 class RegistrationTournament(StatesGroup):
     start = State()
     info = State()
+    confirm = State()
+    end = State()
 
 
 class AllStates:
