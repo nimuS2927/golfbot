@@ -10,7 +10,8 @@ from aiogram_dialog import setup_dialogs
 from core.config import c_bot
 # from core.dialogs.main_menu.services.common import CommonService, SessionMiddleware
 # from core.utils.commands import set_commands
-from core.main.handlers import client_router, registration_router
+from core.dialogs.services.common import CommonService
+from core.dialogs.windows import all_dialogs
 # from core.dialogs.main_menu import states
 # from core.dialogs.main_menu.windows import AllWindows, all_dialogs
 from core.middleware import SessionMiddleware
@@ -31,11 +32,11 @@ async def main():
     dp = Dispatcher(storage=storage)
     session = ClientSession(connector=aiohttp.TCPConnector(verify_ssl=False))
     dp.update.middleware.register(SessionMiddleware(session=session))
-    # dialogs = all_dialogs()
+    dialogs = all_dialogs()
     dp.include_router(client_router)
-    dp.include_router(registration_router)
-    # for dialog in dialogs:
-    #     dp.include_router(dialog)
+    # dp.include_router(registration_router)
+    for dialog in dialogs:
+        dp.include_router(dialog)
 
     setup_dialogs(dp)
     # Создание экземпляров бота и диспетчера
@@ -45,8 +46,8 @@ async def main():
                                ' %(message)s')
 
     # Регистрация действий на начало и окончание работы бота
-    # service = CommonService()
-    # await service.presets(session=session)
+    service = CommonService()
+    await service.presets(session=session)
     dp.startup.register(on_start_bot)
     dp.shutdown.register(on_stop_bot)
     try:
