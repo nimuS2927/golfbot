@@ -8,13 +8,10 @@ from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram_dialog import setup_dialogs
 
 from core.config import c_bot
-# from core.dialogs.main_menu.services.common import CommonService, SessionMiddleware
-# from core.utils.commands import set_commands
 from core.dialogs.services.common import CommonService
 from core.dialogs.windows import all_dialogs
-# from core.dialogs.main_menu import states
-# from core.dialogs.main_menu.windows import AllWindows, all_dialogs
 from core.middleware import SessionMiddleware
+from core.main.handlers import client_router
 
 
 async def on_start_bot(bot: Bot):
