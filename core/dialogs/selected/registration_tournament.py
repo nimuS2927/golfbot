@@ -16,3 +16,13 @@ async def on_registration_tournament(
 ):
     await manager.start(state=all_states.registration_tournament.start)
 
+
+async def on_choice_tournament(
+        callback: CallbackQuery,
+        button: Button,
+        manager: DialogManager,
+        item_id: int,
+):
+    context = manager.current_context()
+    context.dialog_data.update(tournament_id=item_id)
+    await manager.switch_to(all_states.registration_tournament.info)
