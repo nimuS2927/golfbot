@@ -1,6 +1,3 @@
-import os.path
-from pathlib import Path
-
 from aiogram_dialog import Window, Data, DialogManager, ShowMode, Dialog
 from aiogram_dialog.widgets.kbd import Cancel, Back, Button, SwitchTo
 from aiogram_dialog.widgets.text import Const, Format, List
@@ -8,13 +5,13 @@ from aiogram_dialog.widgets.media import StaticMedia, DynamicMedia
 from aiogram_dialog.widgets.input import TextInput
 
 from core.config import c_project
-# from core.dialogs.main_menu import keyboards, states, selected
-from aiogram.types import ContentType
 
-from core.main.keyboards.buttons import MainKB, RegistrationBotKB
-from .selected import registration_bot, registration_tournament, main_menu
+from core.main.keyboards.buttons import MainKB, RegistrationBotKB, RegistrationTournamentKB
+from . import keyboards
+from .selected import registration_bot, main_menu
+from .selected import tournament as s_tournament
 from core.dialogs.states import all_states
-from core.dialogs.getters import get_registration_data
+from core.dialogs.getters import get_registration_data, g_tournament
 
 
 class AllWindows:
@@ -23,23 +20,22 @@ class AllWindows:
     def main_window():
         return Window(
             Const('Вас приветствует Бот гольф-клуба "Ваше название"! Выберите интересующий вас пункт...'),
-            SwitchTo(
+            Button(
                 Format(f'{MainKB.registration_bot[0]}'),
                 id=MainKB.registration_bot[1],
-                state=all_states.registration_bot.start,
                 on_click=registration_bot.on_registration_bot,
             ),
-            SwitchTo(
+            Button(
                 Format(f'{MainKB.registration_tournament[0]}'),
                 id=MainKB.registration_tournament[1],
-                state=all_states.registration_tournament.start,
-                on_click=registration_tournament.on_registration_tournament
+                on_click=s_tournament.on_registration_tournament
             ),
             Cancel(Format(f'{MainKB.cancel[0]}')),
             state=all_states.main.start,
             # getter=[getters.get_emoji, getters.g_images.get_main]
         )
 
+    # region Registration Bot
     @staticmethod
     def start_registration_bot_window():
         return Window(
@@ -141,6 +137,65 @@ class AllWindows:
             ),
             state=all_states.registration_bot.end,
         )
+    # endregion
+
+    # region Registration tournament
+    @staticmethod
+    def start_registration_tournament_window():
+        return Window(
+            Format('Выберите турнир в котором хотите участвовать'),
+            keyboards.paginated_tournaments(
+                on_click=s_tournament.on_choice_tournament,
+                width=1,
+                height=5,
+            ),
+            Back(Format(f'{MainKB.back[0]}')),
+            state=all_states.registration_tournament.start,
+            getter=g_tournament.get_nearest_without_user
+        )
+
+    @staticmethod
+    def empty_registration_tournament_window():
+        return Window(
+            Format('К сожалению для вас нет подходящего турнира в ближайшие 30 дней'),
+            Cancel(Format(f'{MainKB.cancel[0]}')),
+            state=all_states.registration_tournament.empty,
+        )
+
+    @staticmethod
+    def info_registration_tournament_window():
+        return Window(
+            Format('''Турнир "{tournament.name}".
+Стартует {tournament.start} и заканчивается {tournament.end}.
+Максимальное число флайтов {tournament.max_flights}.
+HCP = {tournament.hcp}
+                    '''),
+            Button(
+                Format(f'{RegistrationTournamentKB.confirm[0]}'),
+                id=RegistrationTournamentKB.confirm[1],
+                on_click=s_tournament.on_entered_confirm
+            ),
+            Cancel(Format(f'{MainKB.cancel[0]}')),
+            state=all_states.registration_tournament.info,
+            getter=g_tournament.get_one_by_id
+        )
+
+    @staticmethod
+    def end_registration_tournament_window():
+        return Window(
+            Format('''Поздравляю вы зарегистрированы в турнире!'''),
+            Button(
+                Format(f'{MainKB.main_menu[0]}'),
+                id=MainKB.main_menu[1],
+                on_click=main_menu.on_main_menu,
+            ),
+            state=all_states.registration_tournament.end,
+        )
+    # endregion
+
+    # region Game
+
+    # endregion
 
 
 def all_dialogs():
@@ -155,6 +210,12 @@ def all_dialogs():
             AllWindows.entered_phone_window(),
             AllWindows.entered_handicap_window(),
             AllWindows.end_registration_window(),
+        ),
+        Dialog(
+            AllWindows.start_registration_tournament_window(),
+            AllWindows.info_registration_tournament_window(),
+            AllWindows.end_registration_tournament_window(),
+            AllWindows.empty_registration_tournament_window(),
         ),
     ]
 

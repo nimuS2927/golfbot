@@ -18,7 +18,7 @@ class RegistrationBot(StatesGroup):
 class RegistrationTournament(StatesGroup):
     start = State()
     info = State()
-    confirm = State()
+    empty = State()
     end = State()
 
 

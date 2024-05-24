@@ -5,5 +5,5 @@ __all__ = [
 ]
 
 from .registration_bot import on_registration_bot
-from .registration_tournament import on_registration_tournament
+from .tournament import on_registration_tournament
 from .main_menu import on_main_menu

@@ -19,3 +19,8 @@ class RegistrationBotKB:
     your_phone = ['Ваш телефон', 'your_phone']
     your_handicap = ['Ваш handicap', 'your_handicap']
     confirm = ['Подтвердить регистрацию в боте', 'confirm_registration_bot']
+
+
+@dataclass
+class RegistrationTournamentKB:
+    confirm = ['Подтвердить регистрацию в турнире', 'confirm_registration_tournament']

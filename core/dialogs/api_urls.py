@@ -34,13 +34,16 @@ class ApiURL:
         # endregion
         # region URL tournaments
         self.__GET_TOURNAMENTS = self._base_url + self._prefix_db + 'tournaments/'
-        self.__POST_TOURNAMENTS = self._base_url + self._prefix_db + 'tournaments/'
+        self.__POST_TOURNAMENT = self._base_url + self._prefix_db + 'tournaments/'
+        self.__POST_TOURNAMENT_DISTRIBUTE = self._base_url + self._prefix_db + 'tournaments/distribute/'
+        self.__POST_TOURNAMENT_ADDUSER = self._base_url + self._prefix_db + 'tournaments/adduser/'
         self.__GET_TOURNAMENT_BY_NAME = self._base_url + self._prefix_db + 'tournaments/name/'
         self.__GET_TOURNAMENT_BY_ID = self._base_url + self._prefix_db + 'tournaments/'
         self.__PUT_TOURNAMENT_BY_ID = self._base_url + self._prefix_db + 'tournaments/'
         self.__PATCH_TOURNAMENT_BY_ID = self._base_url + self._prefix_db + 'tournaments/'
         self.__DELETE_TOURNAMENT_BY_ID = self._base_url + self._prefix_db + 'tournaments/'
         self.__GET_TOURNAMENT_NEAREST = self._base_url + self._prefix_db + 'tournaments/nearest/'
+        self.__POST_TOURNAMENT_NEAREST = self._base_url + self._prefix_db + 'tournaments/nearest/'
         # endregion
 
     # region Functions to getting URL settings
@@ -90,8 +93,14 @@ class ApiURL:
     def get_tournaments(self) -> str:
         return self.__GET_TOURNAMENTS
 
-    def post_tournaments(self) -> str:
-        return self.__POST_TOURNAMENTS
+    def post_tournament(self) -> str:
+        return self.__POST_TOURNAMENT
+
+    def post_tournament_distribute(self) -> str:
+        return self.__POST_TOURNAMENT_DISTRIBUTE
+
+    def post_tournament_adduser(self) -> str:
+        return self.__POST_TOURNAMENT_ADDUSER
 
     def get_tournament_by_id(self, tournament_id: int) -> str:
         return self.__GET_TOURNAMENT_BY_ID + str(tournament_id) + '/'
@@ -104,6 +113,9 @@ class ApiURL:
 
     def delete_tournament_by_id(self, tournament_id: int) -> str:
         return self.__DELETE_TOURNAMENT_BY_ID + str(tournament_id) + '/'
+
+    def post_tournament_nearest(self) -> str:
+        return self.__POST_TOURNAMENT_NEAREST
 
     def get_tournament_nearest(self) -> str:
         return self.__GET_TOURNAMENT_NEAREST
