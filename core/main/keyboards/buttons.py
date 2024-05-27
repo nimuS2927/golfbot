@@ -7,7 +7,6 @@ class MainKB:
     info_function = ['Получить информацию о возможностях бота', 'info_function']    # general
     registration_bot = ['Зарегистрироваться в боте', 'registration_bot']    # general
     registration_tournament = ['Зарегистрироваться в турнире', 'registration_tournament']    # general
-    start_game = ['Запустить игру', 'start_game']    # general
     cancel = ['Выйти', 'cancel']    # general
     back = ['Назад', 'back']    # general
 
@@ -24,3 +23,12 @@ class RegistrationBotKB:
 @dataclass
 class RegistrationTournamentKB:
     confirm = ['Подтвердить регистрацию в турнире', 'confirm_registration_tournament']
+
+
+@dataclass
+class GameKB:
+    start_game = ['Запустить игру', 'start_game']
+    list_available_tournament = ['Список доступных турниров', 'list_available_tournament']
+    completed_game = ['Завершить игру', 'completed_game']
+    back_to_game = ['Вернуться к игре', 'back_to_game']
+

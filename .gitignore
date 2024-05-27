@@ -164,3 +164,4 @@ cython_debug/
 
 # File with a list of project development steps
 /.step_dev.md
+library/logging/*

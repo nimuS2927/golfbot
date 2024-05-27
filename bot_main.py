@@ -1,5 +1,6 @@
 import asyncio
 import logging
+import logging.config
 
 import aiohttp
 from aiohttp import ClientSession
@@ -8,10 +9,15 @@ from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram_dialog import setup_dialogs
 
 from core.config import c_bot
+from core.config_logging import LOGGING
 from core.dialogs.services.common import CommonService
 from core.dialogs.windows import all_dialogs
 from core.middleware import SessionMiddleware
 from core.main.handlers import client_router
+
+
+logger = logging.getLogger(__name__)
+logging.config.dictConfig(LOGGING)
 
 
 async def on_start_bot(bot: Bot):
@@ -23,7 +29,7 @@ async def on_stop_bot(bot: Bot):
 
 
 async def main():
-
+    logger.info('Start bot')
     storage = MemoryStorage()
     bot = Bot(token=c_bot.token)
     dp = Dispatcher(storage=storage)
@@ -38,9 +44,6 @@ async def main():
     setup_dialogs(dp)
     # Создание экземпляров бота и диспетчера
     # Настройка базового логирования
-    logging.basicConfig(level=logging.INFO,
-                        format='%(asctime)s - %(levelname)s - %(name)s -'
-                               ' %(message)s')
 
     # Регистрация действий на начало и окончание работы бота
     service = CommonService()

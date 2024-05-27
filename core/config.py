@@ -7,7 +7,6 @@ To use them you can import standard classes or initialize them with your names
           path to the folder for storing temporary files (__PATH_TO_FILES),
           path to the folder for storing fixtures (__PATH_TO_FIXTURES)
   -- c_bot - ConfigBot includes access token for telegram bot (__TOKEN)
-  -- c_db - ConfigDB includes database settings options (__NAME, __USER, __PASSWORD, __HOST, __PORT, __PATH)
   -- c_project - ConfigProject includes all of the above.
 
     Property functions are defined for all parameters in the classes.
@@ -43,6 +42,8 @@ class ConfigBasic(object):
         self.__PATH_TO_FIXTURES.mkdir(parents=True, exist_ok=True)
         self.__PATH_TO_IMAGES: Path = Path.joinpath(self.__PROJECT_DIR, 'library', 'images')
         self.__PATH_TO_IMAGES.mkdir(parents=True, exist_ok=True)
+        self.__PATH_TO_LOGGING: Path = Path.joinpath(self.__PROJECT_DIR, 'library', 'logging')
+        self.__PATH_TO_LOGGING.mkdir(parents=True, exist_ok=True)
 
     # region Functions to getting basic settings
     @property
@@ -60,6 +61,10 @@ class ConfigBasic(object):
     @property
     def path_to_images(self) -> Path:
         return self.__PATH_TO_IMAGES
+
+    @property
+    def path_to_logging(self) -> Path:
+        return self.__PATH_TO_LOGGING
     # endregion
 
 
@@ -96,58 +101,6 @@ class ConfigBot(object):
 
 
 c_bot = ConfigBot()
-#
-#
-# class ConfigDB(object):
-#     _instance = None
-#
-#     def __new__(cls):
-#         if not cls._instance:
-#             instance = super(ConfigDB, cls).__new__(cls)
-#             cls._instance = instance
-#         return cls._instance
-#
-#     def __init__(self):
-#         self.__NAME = os.getenv("DB_NAME")
-#         self.__USER = os.getenv("USER")
-#         self.__PASSWORD = os.getenv("PASSWORD")
-#         self.__HOST = os.getenv("HOST")
-#         self.__PATH = os.getenv("PATH_TO_DB", self.path_to_db(c_basic.project_dir))
-#         self.__PORT = os.getenv("PORT", 5432)
-#
-#     # region Functions to getting db settings
-#     @property
-#     def name(self) -> str:
-#         return self.__NAME
-#
-#     @property
-#     def user(self) -> str:
-#         return self.__USER
-#
-#     @property
-#     def password(self) -> str:
-#         return self.__PASSWORD
-#
-#     @property
-#     def host(self) -> str:
-#         return self.__HOST
-#
-#     @property
-#     def port(self) -> str:
-#         return self.__PORT
-#
-#     # endregion
-#
-#     def path_to_db(self, path_root) -> str:
-#         path_dir_db = os.path.join(path_root, '../database')
-#         if os.path.exists(path_dir_db):
-#             return os.path.join(path_dir_db, self.name)
-#         else:
-#             os.mkdir(path_dir_db)
-#             return os.path.join(path_dir_db, self.name)
-#
-#
-# c_db = ConfigDB()
 
 
 class ConfigAPI(object):

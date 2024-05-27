@@ -20,6 +20,16 @@ class RegistrationTournament(StatesGroup):
     info = State()
     empty = State()
     end = State()
+    anonymous = State()
+
+
+class Game(StatesGroup):
+    choice = State()
+    start = State()
+    result = State()
+    empty = State()
+    empty_holes = State()
+    end = State()
 
 
 class AllStates:
@@ -27,6 +37,7 @@ class AllStates:
         self.main = MainMenuState()
         self.registration_bot = RegistrationBot()
         self.registration_tournament = RegistrationTournament()
+        self.game = Game()
 
 
 all_states = AllStates()

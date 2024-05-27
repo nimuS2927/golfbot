@@ -1,81 +1,40 @@
-import asyncio
-import logging
 from typing import Dict, Union, List, Any
 
 from aiohttp import ClientSession
 from pydantic import ValidationError
 from requests import HTTPError
 
-from core.dialogs.schemas.tournaments import Tournament, CreateTournament, UpdateTournament, UpdateTournamentPartial
+from core.dialogs.schemas.scores import Score, CreateScore, UpdateScore, UpdateScorePartial
 from core.dialogs.services.base import BaseService
 
 
-logger = logging.getLogger(__name__)
+class ScoreService(BaseService):
+    _model = Score
 
-
-class TournamentService(BaseService):
-    _model = Tournament
-
-    async def get_tournament_by_id(
+    async def get_score_by_id(
             self,
             session: ClientSession,
-            tournament_id: int
-    ) -> Tournament:
+            score_id: int
+    ) -> Score:
         headers = await self.create_headers(session=session)
         async with session.get(
-            self.api_urls.get_tournament_by_id(tournament_id),
+            self.api_urls.get_score_by_id(score_id),
             headers=headers,
         ) as response:
             if response.status == 200:
                 obj_dict = await response.json()
                 return self._model.model_validate(obj_dict)
             if response.status == 422:
-                raise ValidationError('Invalid tournament id')
+                raise ValidationError('Invalid score id')
             raise HTTPError('Server error')
 
-    async def get_tournament_nearest(
+    async def get_scores_all(
             self,
             session: ClientSession,
-    ) -> List[Tournament]:
+    ) -> List[Score]:
         headers = await self.create_headers(session=session)
         async with session.get(
-            self.api_urls.get_tournament_nearest(),
-            headers=headers,
-        ) as response:
-            if response.status == 200:
-                objs_dict = await response.json()
-                return [self._model.model_validate(dict_data) for dict_data in objs_dict]
-            if response.status == 422:
-                raise ValidationError('Invalid tournament id')
-            raise HTTPError('Server error')
-
-    async def get_tournament_nearest_without_users(
-            self,
-            session: ClientSession,
-            user_tg_id: int,
-    ) -> List[Tournament]:
-        headers = await self.create_headers(session=session)
-        async with session.post(
-            self.api_urls.post_tournament_nearest(),
-            headers=headers,
-            json={"user_tg_id": user_tg_id},
-        ) as response:
-            if response.status == 200:
-                objs_dict = await response.json()
-                return [self._model.model_validate(dict_data) for dict_data in objs_dict]
-            if response.status == 404:
-                return []
-            if response.status == 422:
-                raise ValidationError('Invalid tournament id')
-            raise HTTPError('Server error')
-
-    async def get_tournaments_all(
-            self,
-            session: ClientSession,
-    ) -> List[Tournament]:
-        headers = await self.create_headers(session=session)
-        async with session.get(
-            self.api_urls.get_tournaments(),
+            self.api_urls.get_scores(),
             headers=headers,
         ) as response:
             if response.status == 200:
@@ -85,43 +44,74 @@ class TournamentService(BaseService):
                 raise ValidationError('Invalid request')
             raise HTTPError('Server error')
 
-    async def get_tournaments_for_game(
+    async def get_score_by_id_tournament(
             self,
-            user_tg_id: int,
+            id_tournament: int,
             session: ClientSession,
-    ) -> List[Tournament]:
-
-        logger.debug('get_tournaments_for_game')
+    ) -> List[Score]:
         headers = await self.create_headers(session=session)
-
         async with session.get(
-            self.api_urls.get_tournaments_for_game(user_tg_id=user_tg_id),
+            self.api_urls.get_score_by_id_tournament(id_tournament=id_tournament),
             headers=headers,
         ) as response:
-            logger.debug('get requests for tournament')
-
             if response.status == 200:
                 objs_dict = await response.json()
-                logger.debug("successful requests for tournament")
                 return [self._model.model_validate(dict_data) for dict_data in objs_dict]
             if response.status == 404:
-                logger.debug("successful requests for tournament (NOT FOUND)")
                 return []
             if response.status == 422:
-                logger.debug("fail requests for tournament")
                 raise ValidationError('Invalid request')
-            logger.debug("other error after requests for tournament")
             raise HTTPError('Server error')
 
-    async def update_tournament(
+    async def get_score_by_id_tournament_and_id_hole(
             self,
+            id_tournament: int,
+            id_hole: int,
             session: ClientSession,
-            tournament_id: int,
-            data: UpdateTournament
-    ) -> Tournament:
+    ) -> List[Score]:
         headers = await self.create_headers(session=session)
         async with session.get(
-            self.api_urls.put_tournament_by_id(tournament_id),
+            self.api_urls.get_score_by_id_tournament_and_id_hole(id_tournament=id_tournament, id_hole=id_hole),
+            headers=headers,
+        ) as response:
+            if response.status == 200:
+                objs_dict = await response.json()
+                return [self._model.model_validate(dict_data) for dict_data in objs_dict]
+            if response.status == 404:
+                return []
+            if response.status == 422:
+                raise ValidationError('Invalid request')
+            raise HTTPError('Server error')
+
+    async def get_score_by_id_tournament_and_id_user(
+            self,
+            id_tournament: int,
+            id_user: int,
+            session: ClientSession,
+    ) -> List[Score]:
+        headers = await self.create_headers(session=session)
+        async with session.get(
+                self.api_urls.get_score_by_id_tournament_and_id_user(id_tournament=id_tournament, id_user=id_user),
+                headers=headers,
+        ) as response:
+            if response.status == 200:
+                objs_dict = await response.json()
+                return [self._model.model_validate(dict_data) for dict_data in objs_dict]
+            if response.status == 404:
+                return []
+            if response.status == 422:
+                raise ValidationError('Invalid request')
+            raise HTTPError('Server error')
+
+    async def update_score(
+            self,
+            session: ClientSession,
+            score_id: int,
+            data: UpdateScore
+    ) -> Score:
+        headers = await self.create_headers(session=session)
+        async with session.get(
+            self.api_urls.put_score_by_id(score_id),
             headers=headers,
             json=data,
         ) as response:
@@ -129,18 +119,18 @@ class TournamentService(BaseService):
                 obj_dict = await response.json()
                 return self._model.model_validate(obj_dict)
             if response.status == 422:
-                raise ValidationError('Invalid tournament fields')
+                raise ValidationError('Invalid score fields')
             raise HTTPError('Server error')
 
-    async def partial_update_tournament(
+    async def partial_update_score(
             self,
             session: ClientSession,
-            tournament_id: int,
-            data: UpdateTournamentPartial
-    ) -> Tournament:
+            score_id: int,
+            data: UpdateScorePartial
+    ) -> Score:
         headers = await self.create_headers(session=session)
         async with session.get(
-            self.api_urls.patch_tournament_by_id(tournament_id),
+            self.api_urls.patch_score_by_id(score_id),
             headers=headers,
             json=data,
         ) as response:
@@ -148,51 +138,33 @@ class TournamentService(BaseService):
                 obj_dict = await response.json()
                 return self._model.model_validate(obj_dict)
             if response.status == 422:
-                raise ValidationError('Invalid tournament fields')
+                raise ValidationError('Invalid score fields')
             raise HTTPError('Server error')
 
-    async def delete_tournament(
+    async def delete_score(
             self,
             session: ClientSession,
-            tournament_id: int
+            score_id: int
     ) -> str:
         headers = await self.create_headers(session=session)
         async with session.delete(
-            self.api_urls.delete_tournament_by_id(tournament_id),
+            self.api_urls.delete_score_by_id(score_id),
             headers=headers,
         ) as response:
             if response.status == 204:
                 return await response.json()
             if response.status == 422:
-                raise ValidationError('Invalid tournament id')
+                raise ValidationError('Invalid score id')
             raise HTTPError('Server error')
 
-    async def get_tournament_by_name(
+    async def create_score(
             self,
             session: ClientSession,
-            name: str
-    ) -> Tournament:
+            data: CreateScore
+    ) -> Score:
         headers = await self.create_headers(session=session)
-        async with session.get(
-            self.api_urls.get_tournament_by_name(name),
-            headers=headers,
-        ) as response:
-            if response.status == 200:
-                obj_dict = await response.json()
-                return self._model.model_validate(obj_dict)
-            if response.status == 422:
-                raise ValidationError('Invalid tournament tg id')
-            raise HTTPError('Server error')
-
-    async def create_tournament(
-            self,
-            session: ClientSession,
-            data: CreateTournament
-    ) -> Tournament:
-        headers = await self.create_headers(session=session)
-        print(data)
         async with session.post(
-            self.api_urls.post_tournament(),
+            self.api_urls.post_score(),
             headers=headers,
             json=data,
         ) as response:
@@ -200,35 +172,9 @@ class TournamentService(BaseService):
                 obj_dict = await response.json()
                 return self._model.model_validate(obj_dict)
             if response.status == 422:
-                raise ValidationError('Invalid tournament fields')
+                raise ValidationError('Invalid score fields')
             raise HTTPError('Server error')
 
-    async def add_user_in_tournament(
-            self,
-            session: ClientSession,
-            user_tg_id: int,
-            tournament_id: int,
-    ) -> Dict[str, Any]:
-        headers = await self.create_headers(session=session)
-        data = {
-              "tournament_id": {
-                "tournament_id": tournament_id
-              },
-              "user_tg_id": {
-                "user_tg_id": user_tg_id
-              }
-            }
-        async with session.post(
-            self.api_urls.post_tournament_adduser(),
-            headers=headers,
-            json=data,
-        ) as response:
-            if response.status == 200:
-                obj_dict = await response.json()
-                return obj_dict
-            if response.status == 422:
-                raise ValidationError('Invalid tournament fields')
-            raise HTTPError('Server error')
 
 
 

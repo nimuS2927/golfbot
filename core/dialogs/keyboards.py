@@ -24,3 +24,21 @@ def paginated_tournaments(
         id="tournament_ids",
         width=width, height=height,
     )
+
+
+def paginated_holes(
+        on_click,
+        width: int = SCROLLING_HEIGHT,
+        height: int = SCROLLING_WIDTH
+):
+    return ScrollingGroup(
+        Select(
+            Format("{item[3]} №{item[1]} - ({item[2]})"),
+            id="s_scroll_products",
+            item_id_getter=operator.itemgetter(0),
+            items="holes_list",
+            on_click=on_click,
+        ),
+        id="hole_ids_kb",
+        width=width, height=height,
+    )

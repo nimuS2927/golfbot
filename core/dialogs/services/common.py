@@ -1,4 +1,6 @@
 import asyncio
+import logging
+
 from aiohttp import ClientSession
 import jwt
 
@@ -6,6 +8,9 @@ from requests import HTTPError
 
 from core.config import c_project
 from core.dialogs.api_urls import ApiURL
+
+
+logger = logging.getLogger(__name__)
 
 
 class CommonService:
@@ -156,17 +161,14 @@ class CommonService:
             self,
             token: str | bytes,
     ) -> str | dict:
-        try:
-            decoded = jwt.decode(
-                token,
-                self.public_key,
-                algorithms=[self.algorithm],
-            )
-            return token
-        except jwt.ExpiredSignatureError:
-            return {self.prefix_exception: jwt.ExpiredSignatureError}
-        except jwt.InvalidTokenError:
-            return {self.prefix_exception: jwt.InvalidTokenError}
+        logger.debug("start Checking token")
+        decoded = jwt.decode(
+            token.split()[1],
+            self.public_key,
+            algorithms=[self.algorithm],
+        )
+        logger.debug("successful Checking token")
+        return token
 
     async def get_access_token(
             self,
@@ -174,25 +176,30 @@ class CommonService:
             login: str = c_project.bot.admin_id,
             password: str = c_project.bot.admin_password,
     ) -> None:
+        logger.debug("start Getting new access token use refresh token")
+
         try:
             lock = asyncio.Lock()
             async with lock:
+                logger.debug("start checking refresh token")
                 check_token = self.refresh_token
                 result = await self.check_token(token=check_token)
-                if type(result) == dict and check_token == self.refresh_token:
-                    raise result[self.prefix_exception]
             async with lock:
                 headers = {'Authorization': self.refresh_token}
+                logger.debug("post request for getting access token")
                 async with session.post(
                         self.api_urls.post_refresh_access_token(),
                         headers=headers,
                 ) as response_post:
                     if response_post.status == 201:
+                        logger.info("successful getting access token")
                         resp_data = await response_post.json()
                         self.access_token = resp_data['access_token']
                     else:
+                        logger.info("fail getting access token")
                         raise HTTPError('Server error')
         except jwt.ExpiredSignatureError or jwt.InvalidTokenError:
+            logger.debug("fail checking refresh token")
             await self.get_both_tokens(
                 login=login,
                 password=password,
@@ -209,17 +216,21 @@ class CommonService:
             "login": login,
             "password": password
         }
+        logger.debug("post request for getting both tokens")
         async with session.post(
                 self.api_urls.post_tokens(),
                 json=data
         ) as response_post:
             if response_post.status == 201:
+                logger.info("successful getting both tokens")
                 resp_data = await response_post.json()
                 self.access_token = resp_data["access_token"]
                 self.refresh_token = resp_data["refresh_token"]
                 self.public_key = resp_data["public_key"]
                 self.algorithm = resp_data["algorithm"]
             elif response_post.status == 401:
+                logger.info("Invalid login or password")
                 raise ValueError('Invalid login or password')
             else:
+                logger.info("fail getting access token")
                 raise HTTPError('Server error')

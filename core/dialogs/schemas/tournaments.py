@@ -11,6 +11,7 @@ class TournamentBase(BaseModel):
     type: str
     max_flights: int
     status: bool = False
+    id_course: int
     start: NaiveDatetime = Field(..., examples=['fmt: YYYY-MM-DD or YYYY-MM-DD HH:MM'])
     end: NaiveDatetime = Field(..., examples=['fmt: YYYY-MM-DD or YYYY-MM-DD HH:MM'])
     hcp: Optional[int] = None
@@ -28,6 +29,7 @@ class UpdateTournamentPartial(TournamentBase):
     name: Optional[Annotated[str, MinLen(3), MaxLen(300)]] = None
     type: str = None
     max_flights: Optional[int] = None
+    id_course: int = None
     start: NaiveDatetime = Field(None, examples=['fmt: YYYY-MM-DD or YYYY-MM-DD HH:MM'])
     end: NaiveDatetime = Field(None, examples=['fmt: YYYY-MM-DD or YYYY-MM-DD HH:MM'])
     hcp: Optional[int] = None

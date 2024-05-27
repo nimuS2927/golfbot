@@ -5,18 +5,19 @@ from aiohttp import ClientSession
 
 from core.config import c_project
 from core.dialogs.pluralization_rules import pluralization
+from core.dialogs.schemas.holes import Hole
 from core.dialogs.schemas.tournaments import Tournament
-from core.dialogs.services import TournamentService
+from core.dialogs.services import HoleService, all_services
 from core.dialogs.states import all_states
 
-Object = Tournament
+Object = Hole
 
 
-class TournamentGetter:
+class HoleGetter:
 
     def __init__(self):
-        self.service = TournamentService()
-        self.__singular = 'tournament'
+        self.service = HoleService()
+        self.__singular = 'hole'
         self.__plural = pluralization(self.singular)
 
     @property
@@ -35,60 +36,38 @@ class TournamentGetter:
         """ Get all the objects """
         middleware_data = dialog_manager.middleware_data
         session: ClientSession = middleware_data.get('session')
-        objs: List[Object] = await self.service.get_tournaments_all(session=session)
+        objs: List[Object] = await self.service.get_holes_all(session=session)
         data = {
             self.plural + '_all': objs
         }
         return data
 
-    async def get_nearest(
+    async def get_holes_by_course_id(
             self,
             dialog_manager: DialogManager,
             **middleware_data
     ):
-        """ Get the objects till 30 days from today """
-        middleware_data = dialog_manager.middleware_data
-        session: ClientSession = middleware_data.get('session')
-        objs: List[Object] = await self.service.get_tournament_nearest(session=session)
-        data = {
-            self.plural: objs
-        }
-        return data
-
-    async def get_nearest_without_user(
-            self,
-            dialog_manager: DialogManager,
-            **middleware_data
-    ):
-        """ Get the objects till 30 days from today """
+        context = dialog_manager.current_context()
         user_tg_id = dialog_manager.event.from_user.id
         middleware_data = dialog_manager.middleware_data
         session: ClientSession = middleware_data.get('session')
-        objs: List[Object] = await self.service.get_tournament_nearest_without_users(
+        dialog_data = dialog_manager.dialog_data
+        holes_ids = dialog_data.get('holes_ids')
+        if not holes_ids:
+            holes_ids = {}
+        tournament_id: int = dialog_data.get('tournament_id')
+        tournament: Tournament = await all_services.tournament.get_tournament_by_id(
             session=session,
-            user_tg_id=user_tg_id
+            tournament_id=tournament_id
         )
-
-        data = {
-            self.plural: objs
-        }
-        return data
-
-    async def get_tournaments_for_game(
-            self,
-            dialog_manager: DialogManager,
-            **middleware_data
-    ):
-        user_tg_id = dialog_manager.event.from_user.id
-        middleware_data = dialog_manager.middleware_data
-        session: ClientSession = middleware_data.get('session')
-        objs: List[Object] = await self.service.get_tournaments_for_game(
+        holes: List[Object] = await self.service.get_holes_by_course_id(
             session=session,
-            user_tg_id=user_tg_id
+            course_id=tournament.id_course
         )
-
+        context.dialog_data.update(holes=holes)
+        holes_list = [(hole.id, hole.number, hole.par, '○') if hole.id not in holes_ids.keys() else (hole.id, hole.number, hole.par, '◉') for hole in holes ]
         data = {
-            self.plural: objs
+            'holes_list': holes_list,
         }
         return data
 
@@ -102,17 +81,13 @@ class TournamentGetter:
         session = middleware_data.get('session')
         dialog_data = dialog_manager.dialog_data
         obj_id: int = dialog_data.get(self.singular + '_id')
-        obj: Object = await self.service.get_tournament_by_id(session=session, tournament_id=obj_id)
-        start = obj.start.strftime('%Y-%m-%d')
-        end = obj.end.strftime('%Y-%m-%d')
-        obj.start = start
-        obj.end = end
+        obj: Object = await self.service.get_hole_by_id(session=session, hole_id=obj_id)
         data = {
             self.singular: obj
         }
         return data
 
-    async def get_one_by_name(
+    async def get_one_by_number(
             self,
             dialog_manager: DialogManager,
             **middleware_data
@@ -121,12 +96,24 @@ class TournamentGetter:
         middleware_data = dialog_manager.middleware_data
         session = middleware_data.get('session')
         dialog_data = dialog_manager.dialog_data
-        obj_name: str = dialog_data.get(self.singular + '_name')
-        obj: Object = await self.service.get_tournament_by_name(session=session, name=obj_name)
+        obj_number: int = dialog_data.get(self.singular + '_number')
+        obj: Object = await self.service.get_hole_by_number(session=session, number=obj_number)
         data = {
             self.singular: obj
         }
         return data
 
+    @staticmethod
+    async def get_empty_holes(
+            dialog_manager: DialogManager,
+            **middleware_data
+    ):
+        context = dialog_manager.current_context()
+        empty_holes = context.dialog_data.get('empty_holes')
+        data = {
+            'empty_holes': empty_holes
+        }
+        return data
 
-g_tournament = TournamentGetter()
+
+g_hole = HoleGetter()

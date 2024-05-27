@@ -27,7 +27,7 @@ async def on_entered_first_name(
 ):
     ctx = manager.current_context()
     if not first_name.isalpha():
-        await m.reply('Фамилия должна содержать только буквенные символы')
+        await m.reply('Имя должно содержать только буквенные символы')
         return
     ctx.dialog_data.update(first_name=first_name)
     await manager.switch_to(all_states.registration_bot.start)
@@ -41,7 +41,7 @@ async def on_entered_last_name(
 ):
     ctx = manager.current_context()
     if not last_name.isalpha():
-        await m.reply('Имя должно содержать только буквенные символы')
+        await m.reply('Фамилия должна содержать только буквенные символы')
         return
     ctx.dialog_data.update(last_name=last_name)
     await manager.switch_to(all_states.registration_bot.start)

@@ -34,6 +34,7 @@ class ApiURL:
         # endregion
         # region URL tournaments
         self.__GET_TOURNAMENTS = self._base_url + self._prefix_db + 'tournaments/'
+        self.__GET_TOURNAMENTS_FOR_GAME = self._base_url + self._prefix_db + 'tournaments/game/'
         self.__POST_TOURNAMENT = self._base_url + self._prefix_db + 'tournaments/'
         self.__POST_TOURNAMENT_DISTRIBUTE = self._base_url + self._prefix_db + 'tournaments/distribute/'
         self.__POST_TOURNAMENT_ADDUSER = self._base_url + self._prefix_db + 'tournaments/adduser/'
@@ -44,6 +45,40 @@ class ApiURL:
         self.__DELETE_TOURNAMENT_BY_ID = self._base_url + self._prefix_db + 'tournaments/'
         self.__GET_TOURNAMENT_NEAREST = self._base_url + self._prefix_db + 'tournaments/nearest/'
         self.__POST_TOURNAMENT_NEAREST = self._base_url + self._prefix_db + 'tournaments/nearest/'
+        # endregion
+        # region URL Holes
+        self.__GET_HOLES_BY_COURSE_ID = self._base_url + self._prefix_db + 'holes/course/'
+        self.__GET_HOLE_BY_ID = self._base_url + self._prefix_db + 'holes/'
+        self.__GET_HOLES = self._base_url + self._prefix_db + 'holes/'
+        self.__GET_HOLE_BY_NUMBER = self._base_url + self._prefix_db + 'holes/number/'
+        self.__POST_HOLE = self._base_url + self._prefix_db + 'holes/'
+        self.__PUT_HOLE_BY_ID = self._base_url + self._prefix_db + 'holes/'
+        self.__PATCH_HOLE_BY_ID = self._base_url + self._prefix_db + 'holes/'
+        self.__DELETE_HOLE_BY_ID = self._base_url + self._prefix_db + 'holes/'
+        # endregion
+
+        # region URL Scores
+        self.__GET_SCORES = self._base_url + self._prefix_db + 'scores/'
+        self.__POST_SCORE = self._base_url + self._prefix_db + 'scores/'
+        self.__GET_SCORE_BY_ID = self._base_url + self._prefix_db + 'scores/'
+        self.__PUT_SCORE_BY_ID = self._base_url + self._prefix_db + 'scores/'
+        self.__PATCH_SCORE_BY_ID = self._base_url + self._prefix_db + 'scores/'
+        self.__DELETE_SCORE_BY_ID = self._base_url + self._prefix_db + 'scores/'
+        self.__GET_SCORE_BY_ID_TOURNAMENT_AND_ID_HOLE = self._base_url + self._prefix_db + 'scores/'
+        self.__GET_SCORE_BY_ID_TOURNAMENT_AND_ID_USER = self._base_url + self._prefix_db + 'scores/'
+        self.__GET_SCORE_BY_ID_TOURNAMENT = self._base_url + self._prefix_db + 'scores/tournament/'
+        # endregion
+
+        # region URL TotalScores
+        self.__GET_TOTAL_SCORES = self._base_url + self._prefix_db + 'totalscore/'
+        self.__POST_TOTAL_SCORE = self._base_url + self._prefix_db + 'totalscore/'
+        self.__GET_TOTAL_SCORE_BY_ID = self._base_url + self._prefix_db + 'totalscore/'
+        self.__PUT_TOTAL_SCORE_BY_ID = self._base_url + self._prefix_db + 'totalscore/'
+        self.__PATCH_TOTAL_SCORE_BY_ID = self._base_url + self._prefix_db + 'totalscore/'
+        self.__DELETE_TOTAL_SCORE_BY_ID = self._base_url + self._prefix_db + 'totalscore/'
+        self.__GET_TOTAL_SCORE_BY_ID_TOURNAMENT_AND_ID_USER = self._base_url + self._prefix_db + 'totalscore/'
+        self.__GET_TOTAL_SCORE_BY_ID_TOURNAMENT = self._base_url + self._prefix_db + 'scores/tournament/'
+
         # endregion
 
     # region Functions to getting URL settings
@@ -93,6 +128,9 @@ class ApiURL:
     def get_tournaments(self) -> str:
         return self.__GET_TOURNAMENTS
 
+    def get_tournaments_for_game(self, user_tg_id: int) -> str:
+        return self.__GET_TOURNAMENTS_FOR_GAME + str(user_tg_id) + '/'
+
     def post_tournament(self) -> str:
         return self.__POST_TOURNAMENT
 
@@ -123,6 +161,86 @@ class ApiURL:
     def get_tournament_by_name(self, tournament_name: str) -> str:
         return self.__GET_TOURNAMENT_BY_NAME + tournament_name + '/'
 
+    # endregion
+    # region to getting Holes
+    def get_holes_by_course_id(self, id_course: int) -> str:
+        return self.__GET_HOLES_BY_COURSE_ID + str(id_course) + '/'
+
+    def get_hole_by_id(self, hole_id: int) -> str:
+        return self.__GET_HOLE_BY_ID + str(hole_id) + '/'
+
+    def get_holes(self) -> str:
+        return self.__GET_HOLES
+
+    def get_hole_by_number(self, hole_number: int) -> str:
+        return self.__GET_HOLE_BY_NUMBER + str(hole_number) + '/'
+
+    def post_hole(self) -> str:
+        return self.__POST_HOLE
+
+    def put_hole_by_id(self, hole_id: int) -> str:
+        return self.__PUT_HOLE_BY_ID + str(hole_id) + '/'
+
+    def patch_hole_by_id(self, hole_id: int) -> str:
+        return self.__PATCH_HOLE_BY_ID + str(hole_id) + '/'
+
+    def delete_hole_by_id(self, hole_id: int) -> str:
+        return self.__DELETE_HOLE_BY_ID + str(hole_id) + '/'
+
+    # endregion
+    # region to getting Scores
+    def get_scores(self) -> str:
+        return self.__GET_SCORES
+
+    def post_score(self) -> str:
+        return self.__POST_SCORE
+
+    def get_score_by_id(self, score_id: int) -> str:
+        return self.__GET_SCORE_BY_ID + str(score_id) + '/'
+
+    def put_score_by_id(self, score_id: int) -> str:
+        return self.__PUT_SCORE_BY_ID + str(score_id) + '/'
+
+    def patch_score_by_id(self, score_id: int) -> str:
+        return self.__PATCH_SCORE_BY_ID + str(score_id) + '/'
+
+    def delete_score_by_id(self, score_id: int) -> str:
+        return self.__DELETE_SCORE_BY_ID + str(score_id) + '/'
+
+    def get_score_by_id_tournament(self, id_tournament: int) -> str:
+        return self.__GET_SCORE_BY_ID_TOURNAMENT + str(id_tournament) + '/'
+
+    def get_score_by_id_tournament_and_id_hole(self, id_tournament: int, id_hole: int) -> str:
+        return self.__GET_SCORE_BY_ID_TOURNAMENT_AND_ID_HOLE + str(id_tournament) + '/hole/' + str(id_hole) + '/'
+
+    def get_score_by_id_tournament_and_id_user(self, id_tournament: int, id_user: int) -> str:
+        return self.__GET_SCORE_BY_ID_TOURNAMENT_AND_ID_USER + str(id_tournament) + '/user/' + str(id_user) + '/'
+    # endregion
+
+    # region to getting Scores
+    def get_totalscores(self) -> str:
+        return self.__GET_TOTAL_SCORES
+
+    def post_totalscore(self) -> str:
+        return self.__POST_TOTAL_SCORE
+
+    def get_totalscore_by_id(self, totalscore_id: int) -> str:
+        return self.__GET_TOTAL_SCORE_BY_ID + str(totalscore_id) + '/'
+
+    def put_totalscore_by_id(self, totalscore_id: int) -> str:
+        return self.__PUT_TOTAL_SCORE_BY_ID + str(totalscore_id) + '/'
+
+    def patch_totalscore_by_id(self, totalscore_id: int) -> str:
+        return self.__PATCH_TOTAL_SCORE_BY_ID + str(totalscore_id) + '/'
+
+    def delete_totalscore_by_id(self, totalscore_id: int) -> str:
+        return self.__DELETE_TOTAL_SCORE_BY_ID + str(totalscore_id) + '/'
+
+    def get_totalscores_by_id_tournament(self, id_tournament: int) -> str:
+        return self.__GET_TOTAL_SCORE_BY_ID_TOURNAMENT + str(id_tournament) + '/'
+
+    def get_totalscore_by_id_tournament_and_id_user(self, id_tournament: int, id_user: int) -> str:
+        return self.__GET_TOTAL_SCORE_BY_ID_TOURNAMENT_AND_ID_USER + str(id_tournament) + '/user/' + str(id_user) + '/'
     # endregion
     # endregion
 
