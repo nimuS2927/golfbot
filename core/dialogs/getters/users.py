@@ -1,8 +1,6 @@
-from typing import List
-
 from aiogram_dialog import DialogManager
 
-from core.dialogs.pluralization_rules import pluralization
+from core.dialogs.utils.pluralization_rules import pluralization
 from core.dialogs.schemas.users import User
 from core.dialogs.services import UserService
 

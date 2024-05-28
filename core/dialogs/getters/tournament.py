@@ -3,11 +3,9 @@ from typing import List
 from aiogram_dialog import DialogManager
 from aiohttp import ClientSession
 
-from core.config import c_project
-from core.dialogs.pluralization_rules import pluralization
+from core.dialogs.utils.pluralization_rules import pluralization
 from core.dialogs.schemas.tournaments import Tournament
 from core.dialogs.services import TournamentService
-from core.dialogs.states import all_states
 
 Object = Tournament
 

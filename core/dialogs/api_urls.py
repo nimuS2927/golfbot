@@ -60,6 +60,7 @@ class ApiURL:
         # region URL Scores
         self.__GET_SCORES = self._base_url + self._prefix_db + 'scores/'
         self.__POST_SCORE = self._base_url + self._prefix_db + 'scores/'
+        self.__POST_SCORES = self._base_url + self._prefix_db + 'scores/many/'
         self.__GET_SCORE_BY_ID = self._base_url + self._prefix_db + 'scores/'
         self.__PUT_SCORE_BY_ID = self._base_url + self._prefix_db + 'scores/'
         self.__PATCH_SCORE_BY_ID = self._base_url + self._prefix_db + 'scores/'
@@ -194,6 +195,9 @@ class ApiURL:
 
     def post_score(self) -> str:
         return self.__POST_SCORE
+
+    def post_scores(self) -> str:
+        return self.__POST_SCORES
 
     def get_score_by_id(self, score_id: int) -> str:
         return self.__GET_SCORE_BY_ID + str(score_id) + '/'

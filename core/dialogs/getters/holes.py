@@ -3,12 +3,9 @@ from typing import List
 from aiogram_dialog import DialogManager
 from aiohttp import ClientSession
 
-from core.config import c_project
-from core.dialogs.pluralization_rules import pluralization
+from core.dialogs.utils.pluralization_rules import pluralization
 from core.dialogs.schemas.holes import Hole
-from core.dialogs.schemas.tournaments import Tournament
-from core.dialogs.services import HoleService, all_services
-from core.dialogs.states import all_states
+from core.dialogs.services import HoleService
 
 Object = Hole
 
@@ -55,16 +52,18 @@ class HoleGetter:
         holes_ids = dialog_data.get('holes_ids')
         if not holes_ids:
             holes_ids = {}
-        tournament_id: int = dialog_data.get('tournament_id')
-        tournament: Tournament = await all_services.tournament.get_tournament_by_id(
-            session=session,
-            tournament_id=tournament_id
-        )
-        holes: List[Object] = await self.service.get_holes_by_course_id(
-            session=session,
-            course_id=tournament.id_course
-        )
-        context.dialog_data.update(holes=holes)
+        # tournament_id: int = dialog_data.get('tournament_id')
+        # tournament: Tournament = await all_services.tournament.get_tournament_by_id(
+        #     session=session,
+        #     tournament_id=tournament_id
+        # )
+        # tournament: Optional[Tournament] = context.dialog_data.get('tournament')
+        holes: List[Hole] = context.dialog_data.get('holes')
+        # holes: List[Object] = await self.service.get_holes_by_course_id(
+        #     session=session,
+        #     course_id=tournament.id_course
+        # )
+        # context.dialog_data.update(holes=holes)
         holes_list = [(hole.id, hole.number, hole.par, '○') if hole.id not in holes_ids.keys() else (hole.id, hole.number, hole.par, '◉') for hole in holes ]
         data = {
             'holes_list': holes_list,

@@ -83,7 +83,7 @@ class ScoreService(BaseService):
                 raise ValidationError('Invalid request')
             raise HTTPError('Server error')
 
-    async def get_score_by_id_tournament_and_id_user(
+    async def get_scores_by_id_tournament_and_id_user(
             self,
             id_tournament: int,
             id_user: int,
@@ -91,7 +91,7 @@ class ScoreService(BaseService):
     ) -> List[Score]:
         headers = await self.create_headers(session=session)
         async with session.get(
-                self.api_urls.get_score_by_id_tournament_and_id_user(id_tournament=id_tournament, id_user=id_user),
+                self.api_urls.get_scores_by_id_tournament_and_id_user(id_tournament=id_tournament, id_user=id_user),
                 headers=headers,
         ) as response:
             if response.status == 200:
@@ -171,6 +171,24 @@ class ScoreService(BaseService):
             if response.status == 201:
                 obj_dict = await response.json()
                 return self._model.model_validate(obj_dict)
+            if response.status == 422:
+                raise ValidationError('Invalid score fields')
+            raise HTTPError('Server error')
+
+    async def create_scores(
+            self,
+            session: ClientSession,
+            data: List[CreateScore]
+    ) -> List[Score]:
+        headers = await self.create_headers(session=session)
+        async with session.post(
+            self.api_urls.post_scores(),
+            headers=headers,
+            json=data,
+        ) as response:
+            if response.status == 201:
+                objs_dict = await response.json()
+                return [self._model.model_validate(dict_data) for dict_data in objs_dict]
             if response.status == 422:
                 raise ValidationError('Invalid score fields')
             raise HTTPError('Server error')
