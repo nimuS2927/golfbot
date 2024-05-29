@@ -7,6 +7,7 @@ class MainMenuState(StatesGroup):
 
 class RegistrationBot(StatesGroup):
     start = State()
+    run = State()
     first_name = State()
     last_name = State()
     phone = State()
@@ -32,12 +33,22 @@ class Game(StatesGroup):
     end = State()
 
 
+class Admin(StatesGroup):
+    authorization = State()
+    forbidden = State()
+    start = State()
+    show_tournament = State()
+    show_users = State()
+    show_course = State()
+
+
 class AllStates:
     def __init__(self):
         self.main = MainMenuState()
         self.registration_bot = RegistrationBot()
         self.registration_tournament = RegistrationTournament()
         self.game = Game()
+        self.admin = Admin()
 
 
 all_states = AllStates()
