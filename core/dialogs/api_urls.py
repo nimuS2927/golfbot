@@ -15,7 +15,9 @@ class ApiURL:
 
     def __init__(self):
         # region URL Admins
-        self.__GET_ADMIN_BY_LOGIN = self._base_url + self._prefix_login + 'admins/'
+        self.__POST_ADMIN_BY_LOGIN = self._base_url + self._prefix_login + 'admins/authorization/'
+        self.__POST_ADMIN = self._base_url + self._prefix_login + 'admins/'
+        self.__POST_ADMIN_AUTHORIZATION_FOR_SUPERUSER = self._base_url + self._prefix_login + 'admins/authorization/'
         self.__POST_ADMIN = self._base_url + self._prefix_login + 'admins/'
         self.__DELETE_ADMIN_BY_LOGIN = self._base_url + self._prefix_login + 'admins/'
         # endregion
@@ -56,7 +58,6 @@ class ApiURL:
         self.__PATCH_HOLE_BY_ID = self._base_url + self._prefix_db + 'holes/'
         self.__DELETE_HOLE_BY_ID = self._base_url + self._prefix_db + 'holes/'
         # endregion
-
         # region URL Scores
         self.__GET_SCORES = self._base_url + self._prefix_db + 'scores/'
         self.__POST_SCORE = self._base_url + self._prefix_db + 'scores/'
@@ -65,11 +66,10 @@ class ApiURL:
         self.__PUT_SCORE_BY_ID = self._base_url + self._prefix_db + 'scores/'
         self.__PATCH_SCORE_BY_ID = self._base_url + self._prefix_db + 'scores/'
         self.__DELETE_SCORE_BY_ID = self._base_url + self._prefix_db + 'scores/'
-        self.__GET_SCORE_BY_ID_TOURNAMENT_AND_ID_HOLE = self._base_url + self._prefix_db + 'scores/'
-        self.__GET_SCORE_BY_ID_TOURNAMENT_AND_ID_USER = self._base_url + self._prefix_db + 'scores/'
+        self.__GET_SCORES_BY_ID_TOURNAMENT_AND_ID_HOLE = self._base_url + self._prefix_db + 'scores/'
+        self.__GET_SCORES_BY_ID_TOURNAMENT_AND_ID_USER = self._base_url + self._prefix_db + 'scores/'
         self.__GET_SCORE_BY_ID_TOURNAMENT = self._base_url + self._prefix_db + 'scores/tournament/'
         # endregion
-
         # region URL TotalScores
         self.__GET_TOTAL_SCORES = self._base_url + self._prefix_db + 'totalscore/'
         self.__POST_TOTAL_SCORE = self._base_url + self._prefix_db + 'totalscore/'
@@ -84,11 +84,14 @@ class ApiURL:
 
     # region Functions to getting URL settings
     # region to getting Admins
-    def get_admin_by_login(self) -> str:
-        return self.__GET_ADMIN_BY_LOGIN
+    def post_admin_by_login(self) -> str:
+        return self.__POST_ADMIN_BY_LOGIN
 
     def post_admin(self) -> str:
         return self.__POST_ADMIN
+
+    def post_admin_authorization_for_superuser(self, login) -> str:
+        return self.__POST_ADMIN_AUTHORIZATION_FOR_SUPERUSER + login + '/'
 
     def delete_admin_by_login(self, login: str) -> str:
         return self.__DELETE_ADMIN_BY_LOGIN + login + '/'
@@ -214,11 +217,11 @@ class ApiURL:
     def get_score_by_id_tournament(self, id_tournament: int) -> str:
         return self.__GET_SCORE_BY_ID_TOURNAMENT + str(id_tournament) + '/'
 
-    def get_score_by_id_tournament_and_id_hole(self, id_tournament: int, id_hole: int) -> str:
-        return self.__GET_SCORE_BY_ID_TOURNAMENT_AND_ID_HOLE + str(id_tournament) + '/hole/' + str(id_hole) + '/'
+    def get_scores_by_id_tournament_and_id_hole(self, id_tournament: int, id_hole: int) -> str:
+        return self.__GET_SCORES_BY_ID_TOURNAMENT_AND_ID_HOLE + str(id_tournament) + '/hole/' + str(id_hole) + '/'
 
-    def get_score_by_id_tournament_and_id_user(self, id_tournament: int, id_user: int) -> str:
-        return self.__GET_SCORE_BY_ID_TOURNAMENT_AND_ID_USER + str(id_tournament) + '/user/' + str(id_user) + '/'
+    def get_scores_by_id_tournament_and_id_user(self, id_tournament: int, id_user: int) -> str:
+        return self.__GET_SCORES_BY_ID_TOURNAMENT_AND_ID_USER + str(id_tournament) + '/user/' + str(id_user) + '/'
     # endregion
 
     # region to getting Scores
