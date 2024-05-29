@@ -32,3 +32,12 @@ class GameKB:
     completed_game = ['Завершить игру', 'completed_game']
     back_to_game = ['Вернуться к игре', 'back_to_game']
 
+
+@dataclass
+class AdminKB:
+    confirm = ['Войти', 'confirm']
+    tournaments = ['Турниры', 'tournaments']
+    users = ['Пользователи', 'users']
+    admins = ['Админы', 'admins']
+    course = ['Гольф-поля', 'course']
+    close_admin_panel = ['Закрыть админ панель', 'close_admin_panel']
