@@ -12,6 +12,7 @@ from core.dialogs.services.tournaments import TournamentService
 from core.dialogs.services.holes import HoleService
 from core.dialogs.services.scores import ScoreService
 from core.dialogs.services.totalscores import TotalScoreService
+from core.dialogs.services.admins import AdminService
 
 
 class AllServices:
@@ -21,6 +22,7 @@ class AllServices:
         self.__hole = HoleService()
         self.__score = ScoreService()
         self.__totalscores = TotalScoreService()
+        self.__admin = AdminService()
 
     # region get services
     @property
@@ -42,6 +44,10 @@ class AllServices:
     @property
     def totalscores(self):
         return self.__totalscores
+
+    @property
+    def admin(self):
+        return self.__admin
     # endregion
 
 
