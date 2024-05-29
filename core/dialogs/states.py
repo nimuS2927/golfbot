@@ -37,9 +37,27 @@ class Admin(StatesGroup):
     authorization = State()
     forbidden = State()
     start = State()
+    # region Tournaments
     show_tournament = State()
-    show_users = State()
+    edit_tournament = State()
+    create_tournament = State()
+    delete_tournament = State()
+    # endregion Tournaments
+    # region Users
+    show_user = State()
+    edit_user = State()
+    delete_user = State()
+    # endregion Users
+    # region Admins
+    show_admin = State()
+    delete_admin = State()
+    # endregion Admins
+    # region Courses
     show_course = State()
+    edit_course = State()
+    create_course = State()
+    delete_course = State()
+    # endregion Courses
 
 
 class AllStates:
