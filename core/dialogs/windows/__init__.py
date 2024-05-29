@@ -6,7 +6,7 @@ from .game import GameWindows
 from .registration_bot import RegistrationBotWindows
 from .registration_tournament import RegistrationTournamentWindows
 from .main_menu import MainMenuWindow
-from .admins import AdminsWindow
+from .admins import AdminWindows
 
 from aiogram_dialog import Dialog
 
@@ -18,6 +18,7 @@ def all_dialogs():
         ),
         Dialog(
             RegistrationBotWindows.start_registration_bot_window(),
+            RegistrationBotWindows.run_registration_bot_window(),
             RegistrationBotWindows.entered_first_name_window(),
             RegistrationBotWindows.entered_last_name_window(),
             RegistrationBotWindows.entered_phone_window(),
