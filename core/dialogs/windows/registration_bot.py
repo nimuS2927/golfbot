@@ -17,9 +17,24 @@ from core.dialogs.getters import get_registration_data, g_tournament, g_hole
 
 class RegistrationBotWindows:
 
-    # region Registration Bot
     @staticmethod
     def start_registration_bot_window():
+        return Window(
+            Const('Вас приветствует Бот гольф-клуба "Ваше название"!'
+                  ' Вы не зарегистрированный пользователь, хотите пройти регистрацию?'),
+            Button(
+                Format(f'{MainKB.registration_bot[0]}'),
+                id=MainKB.registration_bot[1],
+                on_click=registration_bot.on_registration_bot,
+            ),
+            Cancel(Format(f'{MainKB.cancel[0]}')),
+            state=all_states.registration_bot.start,
+            # getter=[getters.get_emoji, getters.g_images.get_main]
+        )
+
+    # region Registration Bot
+    @staticmethod
+    def run_registration_bot_window():
         return Window(
             Format('''Начался процесс регистрации в нашем боте. 
     Ваше имя: {first_name}
@@ -57,7 +72,7 @@ class RegistrationBotWindows:
                 on_click=registration_bot.on_entered_confirm
             ),
             Cancel(Format(f'{MainKB.cancel[0]}')),
-            state=all_states.registration_bot.start,
+            state=all_states.registration_bot.run,
             getter=get_registration_data
         )
 
