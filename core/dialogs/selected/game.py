@@ -46,8 +46,9 @@ async def on_choice_tournament(
     # region Получаем контекст и входные переменные
     context = manager.current_context()
     session = manager.middleware_data.get('session')
-    user: User = manager.dialog_data.get('user')
-    tg_id = callback.from_user.id
+    user: User = await all_services.user.get_user_by_tg_id(session=session, tg_id=callback.from_user.id)
+    context = manager.current_context()
+    context.dialog_data.update(user=user.model_dump())
     # endregion
     # region Запрашиваем турнир
     tournament: Tournament = await all_services.tournament.get_tournament_by_id(session=session, tournament_id=item_id)
@@ -67,7 +68,7 @@ async def on_choice_tournament(
             id_tournament=tournament.id,
             id_user=user.id,
         )
-        total_score: TotalScore = await all_services.totalscores.get_totalscore_by_id_tournament_and_id_user(
+        total_score: Optional[TotalScore] = await all_services.totalscores.get_totalscore_by_id_tournament_and_id_user(
             session=session,
             id_tournament=tournament.id,
             id_user=user.id,
@@ -83,6 +84,7 @@ async def on_choice_tournament(
                 session=session,
                 data=create_total_score.model_dump()
             )
+        if not scores_list:
             create_score_list = []
             for hole in holes:
                 create_score: CreateScore = CreateScore(
@@ -91,7 +93,7 @@ async def on_choice_tournament(
                     id_user=user.id,
                     id_total_score=total_score.id,
                 )
-                create_score_list.append(create_score)
+                create_score_list.append(create_score.model_dump())
             scores_list: List[Score] = await all_services.score.create_scores(
                 session=session,
                 data=create_score_list
@@ -102,8 +104,8 @@ async def on_choice_tournament(
     context.dialog_data.update(
         tournament_id=item_id,
         tournament=tournament,
-        user=user,
         scores=scores_list,
+        user=user,
         total_score=total_score,
         holes=holes
     )
@@ -160,27 +162,6 @@ async def on_entered_impacts(
     # endregion
     # region Проверяем в данных диалога наличие заполненных лунок
     holes_ids: Optional[Dict[int, list[int, int, int, str]]] = context.dialog_data.get('holes_ids')
-    if not holes_ids:
-        # region Когда в данных диалога нет заполненных лунок, проверяем данные полученные из базы
-        for sc in scores:
-            if sc.impacts:
-                hole: Hole = getters_obj_from_list.get_obj_by_attribute(
-                    objs=holes,
-                    attribute='id',
-                    value=sc.id_hole
-                )
-                holes_ids[hole.id] = [
-                    sc.impacts,
-                    hole.par,
-                    hole.difficulty,
-                    emoji.for_holes(sc.impacts - hole.par)
-                ]
-        # endregion
-    # endregion
-    # region Если данных по заполненным лункам нет, значит это первая лунка
-    if not holes_ids:
-        holes_ids = {}
-    # endregion
     # region Заполняем данные счета по текущей лунке
     score: Score = getters_obj_from_list.get_obj_by_attribute(
         objs=scores,
@@ -204,7 +185,7 @@ async def on_entered_impacts(
     score = await all_services.score.partial_update_score(
         session=session,
         score_id=score.id,
-        json=data_update_score_partial
+        data=data_update_score_partial.model_dump(exclude_unset=True)
     )
     # endregion
     # region Считаем общий счет и обновляем данные в БД
@@ -262,7 +243,7 @@ async def on_entered_impacts(
     await all_services.totalscores.partial_update_totalscore(
         session=session,
         totalscore_id=total_score.id,
-        json=data_update_totalscore_partial
+        data=data_update_totalscore_partial.model_dump(exclude_unset=True)
     )
     context.dialog_data.update(
         scores=scores,
