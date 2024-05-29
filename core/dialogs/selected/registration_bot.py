@@ -16,7 +16,7 @@ async def on_registration_bot(
         button: Button,
         manager: DialogManager,
 ):
-    await manager.start(state=all_states.registration_bot.start)
+    await manager.switch_to(state=all_states.registration_bot.run)
 
 
 async def on_entered_first_name(
