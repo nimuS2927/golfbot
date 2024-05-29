@@ -13,6 +13,7 @@ from core.dialogs.selected import tournament as s_tournament
 from core.dialogs.selected import game as s_game
 from core.dialogs.states import all_states
 from core.dialogs.getters import get_registration_data, g_tournament, g_hole
+from core.dialogs.utils import emoji
 
 
 class GameWindows:
@@ -36,8 +37,9 @@ class GameWindows:
     def start_game_window():
         return Window(
             Format('''Игра началась! Вам необходимо заполнить число ударов на этих лунках...
-    Текущее количество очков: {dialog_data[total_score].total}
-    * для справки лунки указаны в формате "№ лунки (пар)"
+Текущее количество очков: {dialog_data[total_score].total}
+* Лунки указаны в формате "№ лунки (пар)"
+* Символы (кол-во ударов от пара): (+2 {emoji[2]})  (+1 {emoji[1]})  (0 {emoji[0]})  (-1 {emoji[5]})  (-2 {emoji[4]})  (-3 {emoji[3]})
     '''),
             keyboards.paginated_holes(
                 on_click=s_game.on_choice_holes,
@@ -50,7 +52,7 @@ class GameWindows:
                 on_click=s_game.on_completed_game
             ),
             state=all_states.game.start,
-            getter=g_hole.get_holes_by_course_id
+            getter=[g_hole.get_holes_by_course_id, emoji.get_emoji]
         )
 
     @staticmethod
