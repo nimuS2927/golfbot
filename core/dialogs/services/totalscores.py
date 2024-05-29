@@ -1,4 +1,4 @@
-from typing import Dict, Union, List, Any
+from typing import Dict, Union, List, Any, Optional
 
 from aiohttp import ClientSession
 from pydantic import ValidationError
@@ -68,17 +68,17 @@ class TotalScoreService(BaseService):
             id_tournament: int,
             id_user: int,
             session: ClientSession,
-    ) -> List[TotalScore]:
+    ) -> Optional[TotalScore]:
         headers = await self.create_headers(session=session)
         async with session.get(
                 self.api_urls.get_totalscore_by_id_tournament_and_id_user(id_tournament=id_tournament, id_user=id_user),
                 headers=headers,
         ) as response:
             if response.status == 200:
-                objs_dict = await response.json()
-                return [self._model.model_validate(dict_data) for dict_data in objs_dict]
+                obj_dict = await response.json()
+                return self._model.model_validate(obj_dict)
             if response.status == 404:
-                return []
+                return None
             if response.status == 422:
                 raise ValidationError('Invalid request')
             raise HTTPError('Server error')
@@ -109,7 +109,7 @@ class TotalScoreService(BaseService):
             data: UpdateTotalScorePartial
     ) -> TotalScore:
         headers = await self.create_headers(session=session)
-        async with session.get(
+        async with session.patch(
             self.api_urls.patch_totalscore_by_id(totalscore_id),
             headers=headers,
             json=data,

@@ -137,16 +137,16 @@ class CommonService:
                 "password": str(self.password_superuser)
             }
         }
-        async with session.get(
-                self.api_urls.get_admin_by_login(),
-                params=data['admin_in']
+        async with session.post(
+                self.api_urls.post_admin_by_login(),
+                json=data['admin_in']
         ) as response_get:
             if response_get.status == 200:
                 return True
             elif response_get.status == 401:
                 async with session.post(
                         self.api_urls.post_admin(),
-                        data=data
+                        json=data
                 ) as response_post:
                     if response_post.status == 201:
                         return True

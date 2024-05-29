@@ -129,7 +129,7 @@ class ScoreService(BaseService):
             data: UpdateScorePartial
     ) -> Score:
         headers = await self.create_headers(session=session)
-        async with session.get(
+        async with session.patch(
             self.api_urls.patch_score_by_id(score_id),
             headers=headers,
             json=data,
