@@ -1,8 +1,10 @@
-from typing import List
+from typing import List, Optional, Dict
 
 from aiogram_dialog import DialogManager
 from aiohttp import ClientSession
 
+from core.dialogs.schemas.scores import Score
+from core.dialogs.utils import getters_obj_from_list, emoji
 from core.dialogs.utils.pluralization_rules import pluralization
 from core.dialogs.schemas.holes import Hole
 from core.dialogs.services import HoleService
@@ -44,30 +46,41 @@ class HoleGetter:
             dialog_manager: DialogManager,
             **middleware_data
     ):
+        # region Получаем контекст и переменные
         context = dialog_manager.current_context()
-        user_tg_id = dialog_manager.event.from_user.id
-        middleware_data = dialog_manager.middleware_data
-        session: ClientSession = middleware_data.get('session')
-        dialog_data = dialog_manager.dialog_data
-        holes_ids = dialog_data.get('holes_ids')
+        holes_ids: Optional[Dict[int, list[int, int, int, str]]] = context.dialog_data.get('holes_ids')
+        scores_dict: List[dict] = context.dialog_data.get('scores')
+        scores: List[Score] = [Score.model_validate(i_dict) for i_dict in scores_dict]
+        holes_dict: List[dict] = context.dialog_data.get('holes')
+        holes: List[Hole] = [Hole.model_validate(i_dict) for i_dict in holes_dict]
+        # endregion
+        # region Когда в данных диалога нет заполненных лунок, проверяем данные полученные из базы
         if not holes_ids:
             holes_ids = {}
-        # tournament_id: int = dialog_data.get('tournament_id')
-        # tournament: Tournament = await all_services.tournament.get_tournament_by_id(
-        #     session=session,
-        #     tournament_id=tournament_id
-        # )
-        # tournament: Optional[Tournament] = context.dialog_data.get('tournament')
-        holes: List[Hole] = context.dialog_data.get('holes')
-        # holes: List[Object] = await self.service.get_holes_by_course_id(
-        #     session=session,
-        #     course_id=tournament.id_course
-        # )
-        # context.dialog_data.update(holes=holes)
-        holes_list = [(hole.id, hole.number, hole.par, '○') if hole.id not in holes_ids.keys() else (hole.id, hole.number, hole.par, '◉') for hole in holes ]
+            for sc in scores:
+                if sc.impacts:
+                    hole: Hole = getters_obj_from_list.get_obj_by_attribute(
+                        objs=holes,
+                        attribute='id',
+                        value=sc.id_hole
+                    )
+                    holes_ids[hole.id] = [
+                        sc.impacts,
+                        hole.par,
+                        hole.difficulty,
+                        emoji.for_holes(sc.impacts - hole.par)
+                    ]
+        # endregion
+        # region Формируем данные для кнопок (лунок)
+        holes_list = [
+            (hole.id, hole.number, hole.par, '○')
+            if hole.id not in holes_ids.keys()
+            else (hole.id, hole.number, hole.par, holes_ids[hole.id][3])
+            for hole in holes]
         data = {
             'holes_list': holes_list,
         }
+        # endregion
         return data
 
     async def get_one_by_id(
