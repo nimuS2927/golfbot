@@ -22,11 +22,6 @@ class MainMenuWindow:
         return Window(
             Const('Вас приветствует Бот гольф-клуба "Ваше название"! Выберите интересующий вас пункт...'),
             Button(
-                Format(f'{MainKB.registration_bot[0]}'),
-                id=MainKB.registration_bot[1],
-                on_click=registration_bot.on_registration_bot,
-            ),
-            Button(
                 Format(f'{MainKB.registration_tournament[0]}'),
                 id=MainKB.registration_tournament[1],
                 on_click=s_tournament.on_registration_tournament
