@@ -60,3 +60,21 @@ def paginated_alphabet(
         id="alphabet_kb",
         width=width, height=height,
     )
+
+
+def paginated_users(
+        on_click,
+        width: int = SCROLLING_HEIGHT,
+        height: int = SCROLLING_WIDTH
+):
+    return ScrollingGroup(
+        Select(
+            Format("{pos}. {item.first_name} {item.last_name} [{item.id_telegram}]"),
+            id="s_scroll_users",
+            item_id_getter=operator.attrgetter('id'),
+            items="users",
+            on_click=on_click,
+        ),
+        id="users_ids",
+        width=width, height=height,
+    )

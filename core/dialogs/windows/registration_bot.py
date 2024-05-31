@@ -114,7 +114,7 @@ class RegistrationBotWindows:
         return Window(
             Const('Введите ваш гандикап:'),
             TextInput(
-                id='phone',
+                id='handicap',
                 on_success=registration_bot.on_entered_handicap
             ),
             state=all_states.registration_bot.handicap,

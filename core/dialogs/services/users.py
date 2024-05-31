@@ -1,4 +1,4 @@
-from typing import Dict, Union
+from typing import Dict, Union, List
 
 from aiohttp import ClientSession
 from pydantic import ValidationError
@@ -24,6 +24,22 @@ class UserService(BaseService):
             if response.status == 200:
                 obj_dict = await response.json()
                 return self._model.model_validate(obj_dict)
+            if response.status == 422:
+                raise ValidationError('Invalid user id')
+            raise HTTPError('Server error')
+
+    async def get_users_all(
+            self,
+            session: ClientSession,
+    ) -> List[User]:
+        headers = await self.create_headers(session=session)
+        async with session.get(
+            self.api_urls.get_users(),
+            headers=headers,
+        ) as response:
+            if response.status == 200:
+                objs_dict = await response.json()
+                return [self._model.model_validate(obj_dict) for obj_dict in objs_dict]
             if response.status == 422:
                 raise ValidationError('Invalid user id')
             raise HTTPError('Server error')
@@ -57,7 +73,7 @@ class UserService(BaseService):
         async with session.patch(
             self.api_urls.patch_user_by_id(user_id),
             headers=headers,
-            json=data,
+            json=data.model_dump(exclude_unset=True, exclude_none=True),
         ) as response:
             if response.status == 200:
                 obj_dict = await response.json()

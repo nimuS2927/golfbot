@@ -54,7 +54,8 @@ class Admin(StatesGroup):
     # endregion Tournaments
     # region Users
     show_users = State()
-    edit_user = State()
+    info_user = State()
+    entered_handicap = State()
     delete_user = State()
     # endregion Users
     # region Admins

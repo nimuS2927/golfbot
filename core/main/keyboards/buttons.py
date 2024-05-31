@@ -57,7 +57,7 @@ class AdminKB:
     # endregion Tournaments
     # region Users
     users = ['Пользователи', 'users']
-    update_user = ['Обновить пользователя', 'update_user']
+    update_handicap = ['Изменить гандикап', 'update_handicap']
     delete_user = ['Удалить пользователя', 'delete_user']
     # endregion Users
     # region Admins

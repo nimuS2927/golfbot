@@ -154,5 +154,47 @@ class AdminGetter:
         dialog_manager.dialog_data.update(course_names=course_names)
         return {'course_names': course_names}
 
+    @staticmethod
+    async def get_users(
+            dialog_manager: DialogManager,
+            **middleware_data
+    ):
+        # region получаем промежуточные данные
+        middleware_data = dialog_manager.middleware_data
+        session = middleware_data.get('session')
+        context = dialog_manager.current_context()
+        # endregion
+        # region Получаем пользователей из БД
+        users = await all_services.user.get_users_all(
+            session=session,
+        )
+        context.dialog_data.update(
+            users=users,
+        )
+        # endregion
+        return {'users': users}
+
+    @staticmethod
+    async def get_user(
+            dialog_manager: DialogManager,
+            **middleware_data
+    ):
+        # region получаем промежуточные данные
+        middleware_data = dialog_manager.middleware_data
+        session = middleware_data.get('session')
+        context = dialog_manager.current_context()
+        user_id = context.dialog_data.get('user_id')
+        # endregion
+        # region Получаем пользователей из БД
+        user = await all_services.user.get_user(
+            session=session,
+            user_id=user_id
+        )
+        context.dialog_data.update(
+            user=user,
+        )
+        # endregion
+        return {'user': user}
+
 
 g_admin = AdminGetter()

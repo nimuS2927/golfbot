@@ -369,3 +369,103 @@ HCP: {hcp}'''),
         )
     # endregion tournament
 
+    # region Users
+    @staticmethod
+    def choice_user_window():
+        return Window(
+            Format('Выбери нужного пользователя'),
+            keyboards.paginated_users(
+                on_click=s_admin.on_choice_user,
+                width=1,
+                height=5,
+            ),
+            Row(
+                Back(Format(f'{MainKB.back[0]}')),
+                Button(
+                    Format(f'{AdminKB.close_admin_panel[0]}'),
+                    id=AdminKB.close_admin_panel[1],
+                    on_click=s_admin.on_close_admin_panel
+                ),
+            ),
+            state=all_states.admin.show_users,
+            getter=g_admin.get_users
+        )
+
+    @staticmethod
+    def info_user_window():
+        return Window(
+            Format('''Информация о выбранном пользователе. 
+Имя: {user.first_name}
+Фамилия: {user.last_name}
+ID телеграмма: {user.id_telegram}
+Телефон: {user.phone}
+Гандикап: {user.handicap}'''),
+            Row(
+                SwitchTo(
+                    Format(f'{AdminKB.update_handicap[0]}'),
+                    id=AdminKB.update_handicap[1],
+                    state=all_states.admin.entered_handicap
+                ),
+                SwitchTo(
+                    Format(f'{AdminKB.delete_user[0]}'),
+                    id=AdminKB.delete_user[1],
+                    state=all_states.admin.delete_user
+                ),
+            ),
+            SwitchTo(
+                Const(f'{AdminKB.main_admin_panel[0]}'),
+                id=AdminKB.main_admin_panel[1],
+                state=all_states.admin.start
+            ),
+            Row(
+                Back(Format(f'{MainKB.back[0]}')),
+                Button(
+                    Format(f'{AdminKB.close_admin_panel[0]}'),
+                    id=AdminKB.close_admin_panel[1],
+                    on_click=s_admin.on_close_admin_panel
+                ),
+            ),
+            state=all_states.admin.info_user,
+            getter=g_admin.get_user
+        )
+
+    @staticmethod
+    def delete_user_window():
+        return Window(
+            Format('''Вы точно хотите удалить этого пользователя?'''),
+            Button(
+                Const(f'{AdminKB.confirm[0]}'),
+                id=AdminKB.confirm[1],
+                on_click=s_admin.on_confirm_delete_user
+            ),
+            Row(
+                Back(Format(f'{MainKB.back[0]}')),
+                Button(
+                    Format(f'{AdminKB.close_admin_panel[0]}'),
+                    id=AdminKB.close_admin_panel[1],
+                    on_click=s_admin.on_close_admin_panel
+                ),
+            ),
+            state=all_states.admin.delete_user,
+        )
+
+    @staticmethod
+    def entered_handicap_window():
+        return Window(
+            Const('Введите гандикап:'),
+            TextInput(
+                id='handicap',
+                on_success=s_admin.on_entered_handicap
+            ),
+            state=all_states.admin.entered_handicap,
+        )
+    # endregion Users
+
+    # region Admins
+
+    # endregion Admins
+
+    # region Courses
+
+    # endregion Courses
+

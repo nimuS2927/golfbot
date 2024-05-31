@@ -56,5 +56,9 @@ def all_dialogs():
             AdminWindows.entered_start_window(),
             AdminWindows.entered_end_window(),
             AdminWindows.entered_hcp_window(),
+            AdminWindows.choice_user_window(),
+            AdminWindows.info_user_window(),
+            AdminWindows.delete_user_window(),
+            AdminWindows.entered_handicap_window(),
         ),
     ]

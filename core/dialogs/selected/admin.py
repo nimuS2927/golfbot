@@ -8,6 +8,7 @@ from aiogram_dialog.widgets.kbd import Button
 
 from core.dialogs.schemas.admins import GetAdmin, AdminSchemas
 from core.dialogs.schemas.tournaments import Tournament, UpdateTournamentPartial, CreateTournament, TournamentWithCourse
+from core.dialogs.schemas.users import UpdateUserPartial
 from core.dialogs.states import all_states
 from core.dialogs.services import all_services
 
@@ -462,7 +463,7 @@ async def on_confirm_tournaments(
 
 
 # endregion Tournaments
-
+# endregion Tournaments
 
 # region Admins
 async def on_admins(
@@ -482,9 +483,63 @@ async def on_users(
         button: Button,
         manager: DialogManager,
 ):
-    pass
+    await manager.switch_to(state=all_states.admin.show_users)
 
 
+async def on_choice_user(
+        callback: CallbackQuery,
+        button: Button,
+        manager: DialogManager,
+        item_id: int,
+):
+    context = manager.current_context()
+    context.dialog_data.update(user_id=int(item_id))
+    await manager.switch_to(state=all_states.admin.info_user)
+
+
+async def on_entered_handicap(
+        m: Message,
+        widget: Any,
+        manager: DialogManager,
+        handicap: str,
+):
+    context = manager.current_context()
+    middleware_data = manager.middleware_data
+    session = middleware_data.get('session')
+    try:
+        handicap = float(handicap)
+        if -7 > handicap or handicap > 54:
+            await m.reply('Введенное число выходит за пределы допустимого лимита. Гандикап должен быть от -7 до 54')
+            return
+    except ValueError:
+        await m.reply('Гандикап должен иметь формат дробного числа разделенного точкой от -7 до 54')
+        return
+    user_id = context.dialog_data.get('user_id')
+    update_data: UpdateUserPartial = UpdateUserPartial(handicap=handicap)
+    user = await all_services.user.partial_update_user(
+        session=session,
+        data=update_data,
+        user_id=user_id
+    )
+    context.dialog_data.update(user=user)
+    await manager.switch_to(all_states.admin.info_user)
+
+
+async def on_confirm_delete_user(
+        callback: CallbackQuery,
+        button: Button,
+        manager: DialogManager,
+):
+    middleware_data = manager.middleware_data
+    session = middleware_data.get('session')
+    context = manager.current_context()
+    dialog_data = context.dialog_data
+    user_id = dialog_data.get('user_id')
+    await all_services.user.delete_user(
+        session=session,
+        user_id=user_id
+    )
+    await manager.switch_to(all_states.admin.show_users)
 # endregion Users
 
 
