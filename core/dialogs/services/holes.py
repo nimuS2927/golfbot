@@ -70,7 +70,7 @@ class HoleService(BaseService):
             data: UpdateHole
     ) -> Hole:
         headers = await self.create_headers(session=session)
-        async with session.get(
+        async with session.put(
             self.api_urls.put_hole_by_id(hole_id),
             headers=headers,
             json=data,
@@ -89,7 +89,7 @@ class HoleService(BaseService):
             data: UpdateHolePartial
     ) -> Hole:
         headers = await self.create_headers(session=session)
-        async with session.get(
+        async with session.patch(
             self.api_urls.patch_hole_by_id(hole_id),
             headers=headers,
             json=data,

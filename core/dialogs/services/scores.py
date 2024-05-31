@@ -110,7 +110,7 @@ class ScoreService(BaseService):
             data: UpdateScore
     ) -> Score:
         headers = await self.create_headers(session=session)
-        async with session.get(
+        async with session.put(
             self.api_urls.put_score_by_id(score_id),
             headers=headers,
             json=data,

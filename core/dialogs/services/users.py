@@ -35,7 +35,7 @@ class UserService(BaseService):
             data: UpdateUser
     ) -> User:
         headers = await self.create_headers(session=session)
-        async with session.get(
+        async with session.put(
             self.api_urls.put_user_by_id(user_id),
             headers=headers,
             json=data,
@@ -54,7 +54,7 @@ class UserService(BaseService):
             data: UpdateUserPartial
     ) -> User:
         headers = await self.create_headers(session=session)
-        async with session.get(
+        async with session.patch(
             self.api_urls.patch_user_by_id(user_id),
             headers=headers,
             json=data,

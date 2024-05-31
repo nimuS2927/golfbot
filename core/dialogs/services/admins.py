@@ -19,7 +19,7 @@ class AdminService(BaseService):
         """ По логину и паролю"""
         async with session.post(
                 self.api_urls.post_admin_by_login(),
-                json=admin_form
+                json=admin_form.model_dump()
         ) as response_post:
             if response_post.status == 200:
                 return True
@@ -40,7 +40,7 @@ class AdminService(BaseService):
         )
         async with session.post(
                 self.api_urls.post_admin_authorization_for_superuser(login=login),
-                json=superuser
+                json=superuser.model_dump()
         ) as response_post:
             if response_post.status == 200:
                 return True
@@ -81,7 +81,7 @@ class AdminService(BaseService):
             login=self.set_service.login_superuser,
             password=self.set_service.password_superuser,
         )
-        async with session.post(
+        async with session.delete(
                 self.api_urls.delete_admin_by_login(login=login),
                 json=superuser
         ) as response_post:

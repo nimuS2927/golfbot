@@ -70,6 +70,9 @@ class HoleGetter:
                         hole.difficulty,
                         emoji.for_holes(sc.impacts - hole.par)
                     ]
+            dialog_manager.current_context().dialog_data.update(
+                holes_ids=holes_ids
+            )
         # endregion
         # region Формируем данные для кнопок (лунок)
         holes_list = [

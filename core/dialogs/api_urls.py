@@ -48,6 +48,15 @@ class ApiURL:
         self.__GET_TOURNAMENT_NEAREST = self._base_url + self._prefix_db + 'tournaments/nearest/'
         self.__POST_TOURNAMENT_NEAREST = self._base_url + self._prefix_db + 'tournaments/nearest/'
         # endregion
+        # region URL Courses
+        self.__GET_COURSES = self._base_url + self._prefix_db + 'courses/'
+        self.__GET_COURSE_BY_ID = self._base_url + self._prefix_db + 'courses/'
+        self.__POST_COURSE_BY_NAME = self._base_url + self._prefix_db + 'courses/name/'
+        self.__POST_COURSE = self._base_url + self._prefix_db + 'courses/'
+        self.__PUT_COURSE_BY_ID = self._base_url + self._prefix_db + 'courses/'
+        self.__PATCH_COURSE_BY_ID = self._base_url + self._prefix_db + 'courses/'
+        self.__DELETE_COURSE_BY_ID = self._base_url + self._prefix_db + 'courses/'
+        # endregion
         # region URL Holes
         self.__GET_HOLES_BY_COURSE_ID = self._base_url + self._prefix_db + 'holes/course/'
         self.__GET_HOLE_BY_ID = self._base_url + self._prefix_db + 'holes/'
@@ -144,8 +153,8 @@ class ApiURL:
     def post_tournament_adduser(self) -> str:
         return self.__POST_TOURNAMENT_ADDUSER
 
-    def get_tournament_by_id(self, tournament_id: int) -> str:
-        return self.__GET_TOURNAMENT_BY_ID + str(tournament_id) + '/'
+    def get_tournament_by_id(self, tournament_id: int, course_status: bool = False) -> str:
+        return self.__GET_TOURNAMENT_BY_ID + str(tournament_id) + '/' + str(course_status) + '/'
 
     def put_tournament_by_id(self, tournament_id: int) -> str:
         return self.__PUT_TOURNAMENT_BY_ID + str(tournament_id) + '/'
@@ -164,6 +173,29 @@ class ApiURL:
 
     def get_tournament_by_name(self, tournament_name: str) -> str:
         return self.__GET_TOURNAMENT_BY_NAME + tournament_name + '/'
+
+    # endregion
+    # region to getting Holes
+    def get_courses(self) -> str:
+        return self.__GET_COURSES
+
+    def get_course_by_id(self, id_course: int) -> str:
+        return self.__GET_COURSE_BY_ID + str(id_course) + '/'
+
+    def post_course_by_name(self) -> str:
+        return self.__POST_COURSE_BY_NAME
+
+    def post_course(self) -> str:
+        return self.__POST_COURSE
+
+    def put_course_by_id(self, id_course: int) -> str:
+        return self.__PUT_COURSE_BY_ID + str(id_course) + '/'
+
+    def patch_course_by_id(self, id_course: int) -> str:
+        return self.__PATCH_COURSE_BY_ID + str(id_course) + '/'
+
+    def delete_course_by_id(self, id_course: int) -> str:
+        return self.__DELETE_COURSE_BY_ID + str(id_course) + '/'
 
     # endregion
     # region to getting Holes

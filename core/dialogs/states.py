@@ -38,22 +38,31 @@ class Admin(StatesGroup):
     forbidden = State()
     start = State()
     # region Tournaments
-    show_tournament = State()
+    show_tournaments = State()
+    choice_tournament = State()
+    info_tournament = State()
     edit_tournament = State()
     create_tournament = State()
     delete_tournament = State()
+    entered_name = State()
+    entered_type = State()
+    entered_flights = State()
+    entered_course_name = State()
+    entered_start = State()
+    entered_end = State()
+    entered_hcp = State()
     # endregion Tournaments
     # region Users
-    show_user = State()
+    show_users = State()
     edit_user = State()
     delete_user = State()
     # endregion Users
     # region Admins
-    show_admin = State()
+    show_admins = State()
     delete_admin = State()
     # endregion Admins
     # region Courses
-    show_course = State()
+    show_courses = State()
     edit_course = State()
     create_course = State()
     delete_course = State()

@@ -5,6 +5,8 @@ __all__ = {
     'HoleService',
     'ScoreService',
     'TotalScoreService',
+    'AdminService',
+    'CourseService',
 }
 
 from core.dialogs.services.users import UserService
@@ -13,6 +15,7 @@ from core.dialogs.services.holes import HoleService
 from core.dialogs.services.scores import ScoreService
 from core.dialogs.services.totalscores import TotalScoreService
 from core.dialogs.services.admins import AdminService
+from core.dialogs.services.course import CourseService
 
 
 class AllServices:
@@ -23,6 +26,7 @@ class AllServices:
         self.__score = ScoreService()
         self.__totalscores = TotalScoreService()
         self.__admin = AdminService()
+        self.__course = CourseService()
 
     # region get services
     @property
@@ -48,6 +52,10 @@ class AllServices:
     @property
     def admin(self):
         return self.__admin
+
+    @property
+    def course(self):
+        return self.__course
     # endregion
 
 
