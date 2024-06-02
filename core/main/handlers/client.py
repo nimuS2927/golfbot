@@ -3,6 +3,7 @@ from aiogram.filters.command import Command
 from aiogram_dialog import DialogManager, StartMode
 
 from core.config import c_project
+from core.dialogs.schemas.users import User, SuperUser
 from core.dialogs.services import all_services
 from core.dialogs.states import all_states
 
@@ -38,7 +39,7 @@ async def start(message: types.Message, dialog_manager: DialogManager):
         await dialog_manager.start(
             all_states.admin.authorization,
             mode=StartMode.RESET_STACK,
-            data={'user': user}
+            data={'user': user if user else SuperUser()}
         )
     else:
         await dialog_manager.start(

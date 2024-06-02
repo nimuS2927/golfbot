@@ -28,7 +28,11 @@ class GameWindows:
                 width=1,
                 height=5,
             ),
-            Back(Format(f'{MainKB.back[0]}')),
+            Button(
+                Format(f'{MainKB.main_menu[0]}'),
+                id=MainKB.main_menu[1],
+                on_click=main_menu.on_main_menu,
+            ),
             state=all_states.game.choice,
             getter=g_tournament.get_tournaments_for_game
         )
@@ -47,6 +51,11 @@ class GameWindows:
                 height=3,
             ),
             Button(
+                Const(f'{GameKB.top[0]}'),
+                id=GameKB.top[1],
+                on_click=s_game.on_top
+            ),
+            Button(
                 Format(f'{GameKB.completed_game[0]}'),
                 id=GameKB.completed_game[1],
                 on_click=s_game.on_completed_game
@@ -56,14 +65,45 @@ class GameWindows:
         )
 
     @staticmethod
+    def empty_top_window():
+        return Window(
+            Const('Топ пока пуст'),
+            SwitchTo(
+                Const(f'{MainKB.back[0]}'),
+                id=MainKB.back[1],
+                state=all_states.game.start
+            ),
+            state=all_states.game.empty_top,
+        )
+
+    @staticmethod
+    def top_window():
+        return Window(
+            Format('Топ игроков турнира:'),
+            List(
+                Format('{pos}. {item[0]} {item[1]} Удары/Лунки - {item[2]}/{item[3]} шт. Счёт: {item[4]}'),
+                items='totalscores_list'
+            ),
+            SwitchTo(
+                Const(f'{MainKB.back[0]}'),
+                id=MainKB.back[1],
+                state=all_states.game.start
+            ),
+            state=all_states.game.top,
+            getter=g_tournament.get_totalscores
+        )
+
+    @staticmethod
     def entered_impacts_window():
         return Window(
-            Const('Введите количество совершенных ударов:'),
-            TextInput(
-                id='impacts',
-                on_success=s_game.on_entered_impacts
+            Const('Выберите количество совершенных ударов:'),
+            keyboards.paginated_impacts(
+                on_click=s_game.on_entered_impacts,
+                width=2,
+                height=5,
             ),
             state=all_states.game.result,
+            getter=g_tournament.get_impacts
         )
 
     @staticmethod

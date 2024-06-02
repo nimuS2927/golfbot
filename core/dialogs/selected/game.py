@@ -132,13 +132,10 @@ async def on_entered_impacts(
         m: Message,
         widget: Any,
         manager: DialogManager,
-        impacts: str,
+        item_id: str,
 ):
-    # region Проверяем то что ввел пользователь, если проверка не пройдена, возвращаем пользователя на этап ввода данных
-    if not impacts.isdigit():
-        await m.reply('Количество ударов не может содержать буквы')
-        return
-    # endregion
+    item_id = int(item_id)
+
     # region Получаем промежуточные и входные данные
     # region Сессия
     middleware_data = manager.middleware_data
@@ -146,6 +143,8 @@ async def on_entered_impacts(
     # endregion
     # region Данные из контекста (Общий счет, Счета по лункам, турнир, пользователь, лунки)
     context = manager.current_context()
+    impacts_list = context.dialog_data.get('impacts_list')
+    impacts = impacts_list[item_id][1]
     scores_dict: List[dict] = context.dialog_data.get('scores')
     scores: List[Score] = [Score.model_validate(i_dict) for i_dict in scores_dict]
     total_score_dict: dict = context.dialog_data.get('total_score')
@@ -280,3 +279,34 @@ async def on_completed_game(
     else:
         context.dialog_data.update(empty_holes=empty_hole_numbers)
         await manager.switch_to(all_states.game.empty_holes)
+
+
+async def on_top(
+        callback: CallbackQuery,
+        button: Button,
+        manager: DialogManager,
+):
+    # region Получаем промежуточные и входные данные
+    # region Сессия
+    middleware_data = manager.middleware_data
+    session = middleware_data.get('session')
+    # endregion
+    # region Данные из контекста
+    context = manager.current_context()
+    tournament_id: int = context.dialog_data.get('tournament_id')
+    # endregion
+    # endregion
+    # region Получаем турнир с общими счетами каждого игрока
+    tournament_dict = await all_services.tournament.get_tournament_for_top(
+        session=session,
+        tournament_id=int(tournament_id)
+    )
+    totalscores = tournament_dict.get('totalscores')
+    # endregion
+    if not totalscores:
+        await manager.switch_to(all_states.game.empty_top)
+    else:
+        context.dialog_data.update(totalscores=totalscores, tournament_type=tournament_dict['type'])
+        await manager.switch_to(all_states.game.top)
+
+

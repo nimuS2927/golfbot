@@ -17,9 +17,10 @@ class ApiURL:
         # region URL Admins
         self.__POST_ADMIN_BY_LOGIN = self._base_url + self._prefix_login + 'admins/authorization/'
         self.__POST_ADMIN = self._base_url + self._prefix_login + 'admins/'
+        self.__POST_ADMINS = self._base_url + self._prefix_login + 'admins/all/'
         self.__POST_ADMIN_AUTHORIZATION_FOR_SUPERUSER = self._base_url + self._prefix_login + 'admins/authorization/'
         self.__POST_ADMIN = self._base_url + self._prefix_login + 'admins/'
-        self.__DELETE_ADMIN_BY_LOGIN = self._base_url + self._prefix_login + 'admins/'
+        self.__DELETE_ADMIN_BY_ADMIN_ID = self._base_url + self._prefix_login + 'admins/'
         # endregion
         # region URL tokens
         self.__POST_TOKENS = self._base_url + self._prefix_login + 'tokens/full/'
@@ -37,6 +38,7 @@ class ApiURL:
         # region URL tournaments
         self.__GET_TOURNAMENTS = self._base_url + self._prefix_db + 'tournaments/'
         self.__GET_TOURNAMENTS_FOR_GAME = self._base_url + self._prefix_db + 'tournaments/game/'
+        self.__GET_TOURNAMENTS_FOR_TOP = self._base_url + self._prefix_db + 'tournaments/totalscores/'
         self.__POST_TOURNAMENT = self._base_url + self._prefix_db + 'tournaments/'
         self.__POST_TOURNAMENT_DISTRIBUTE = self._base_url + self._prefix_db + 'tournaments/distribute/'
         self.__POST_TOURNAMENT_ADDUSER = self._base_url + self._prefix_db + 'tournaments/adduser/'
@@ -50,6 +52,8 @@ class ApiURL:
         # endregion
         # region URL Courses
         self.__GET_COURSES = self._base_url + self._prefix_db + 'courses/'
+        self.__GET_COURSES_WITH_HOLES = self._base_url + self._prefix_db + 'courses/holes/'
+        self.__GET_COURSE_BY_ID_WITH_HOLES = self._base_url + self._prefix_db + 'courses/holes/'
         self.__GET_COURSE_BY_ID = self._base_url + self._prefix_db + 'courses/'
         self.__POST_COURSE_BY_NAME = self._base_url + self._prefix_db + 'courses/name/'
         self.__POST_COURSE = self._base_url + self._prefix_db + 'courses/'
@@ -99,11 +103,14 @@ class ApiURL:
     def post_admin(self) -> str:
         return self.__POST_ADMIN
 
+    def post_admins(self) -> str:
+        return self.__POST_ADMINS
+
     def post_admin_authorization_for_superuser(self, login) -> str:
         return self.__POST_ADMIN_AUTHORIZATION_FOR_SUPERUSER + login + '/'
 
-    def delete_admin_by_login(self, login: str) -> str:
-        return self.__DELETE_ADMIN_BY_LOGIN + login + '/'
+    def delete_admin_by_admin_id(self, admin_id: int) -> str:
+        return self.__DELETE_ADMIN_BY_ADMIN_ID + str(admin_id) + '/'
 
     # endregion
     # region to getting tokens
@@ -144,6 +151,9 @@ class ApiURL:
     def get_tournaments_for_game(self, user_tg_id: int) -> str:
         return self.__GET_TOURNAMENTS_FOR_GAME + str(user_tg_id) + '/'
 
+    def get_tournaments_for_top(self, tournament_id: int) -> str:
+        return self.__GET_TOURNAMENTS_FOR_TOP + str(tournament_id) + '/'
+
     def post_tournament(self) -> str:
         return self.__POST_TOURNAMENT
 
@@ -175,9 +185,15 @@ class ApiURL:
         return self.__GET_TOURNAMENT_BY_NAME + tournament_name + '/'
 
     # endregion
-    # region to getting Holes
+    # region to getting Courses
     def get_courses(self) -> str:
         return self.__GET_COURSES
+
+    def get_course_by_id_with_holes(self, id_course: int) -> str:
+        return self.__GET_COURSE_BY_ID_WITH_HOLES + str(id_course) + '/'
+
+    def get_courses_with_holes(self) -> str:
+        return self.__GET_COURSES_WITH_HOLES
 
     def get_course_by_id(self, id_course: int) -> str:
         return self.__GET_COURSE_BY_ID + str(id_course) + '/'

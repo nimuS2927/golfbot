@@ -64,12 +64,13 @@ class HoleGetter:
                         attribute='id',
                         value=sc.id_hole
                     )
-                    holes_ids[hole.id] = [
-                        sc.impacts,
-                        hole.par,
-                        hole.difficulty,
-                        emoji.for_holes(sc.impacts - hole.par)
-                    ]
+                    if hole:
+                        holes_ids[hole.id] = [
+                            sc.impacts,
+                            hole.par,
+                            hole.difficulty,
+                            emoji.for_holes(sc.impacts - hole.par)
+                        ]
             dialog_manager.current_context().dialog_data.update(
                 holes_ids=holes_ids
             )
@@ -81,7 +82,7 @@ class HoleGetter:
             else (hole.id, hole.number, hole.par, holes_ids[hole.id][3])
             for hole in holes]
         data = {
-            'holes_list': holes_list,
+            'holes_list': sorted(holes_list, key=lambda x: x[1]),
         }
         # endregion
         return data

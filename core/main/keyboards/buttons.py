@@ -31,6 +31,7 @@ class GameKB:
     list_available_tournament = ['Список доступных турниров', 'list_available_tournament']
     completed_game = ['Завершить игру', 'completed_game']
     back_to_game = ['Вернуться к игре', 'back_to_game']
+    top = ['Рейтинг', 'top']
 
 
 @dataclass
@@ -41,12 +42,13 @@ class AdminKB:
     confirm = ['Подтвердить', 'confirm']
     # region Tournaments
     tournaments = ['Турниры', 'tournaments']
+    top_tournament = ['Рейтинг турнира', 'top_tournament']
     create_tournaments = ['Создать турнир', 'create_tournaments']
     update_tournaments = ['Обновить турнир', 'update_tournaments']
     entered_name = ['Ввести название турнира', 'entered_name']
-    entered_type = ['Ввести тип турнира', 'entered_type']
+    entered_type = ['Выбрать тип турнира', 'entered_type']
     entered_flights = ['Ввести максимальное количество флайтов', 'entered_flights']
-    entered_course_name = ['Ввести название поля', 'entered_course_name']
+    entered_course_name = ['Выбрать поле', 'entered_course_name']
     entered_start = ['Ввести дату старта', 'entered_start']
     entered_end = ['Ввести дату конца', 'entered_end']
     entered_hcp = ['Ввести HCP', 'entered_hcp']
@@ -62,9 +64,22 @@ class AdminKB:
     # endregion Users
     # region Admins
     admins = ['Админы', 'admins']
+    delete_admin = ['Удалить админа', 'delete_admin']
+    entered_login = ['Добавить логин', 'entered_login']
+    entered_password = ['Добавить пароль', 'entered_password']
+    admin_registration = ['Зарегистрировать админа', 'admin_registration']
+    confirm_registration = ['Подтвердить регистрацию', 'confirm_registration']
     # endregion Admins
     # region Courses
     courses = ['Гольф-поля', 'course']
+    create_course = ['Создать гольф-поле', 'create_course']
+    create_hole = ['Создать лунку', 'create_hole']
+    edit_holes = ['Редактировать лунки', 'edit_holes']
+    delete_holes = ['Удалить лунки', 'delete_holes']
+    delete_course = ['Удалить гольф-поле', 'delete_course']
+    number_hole = ['Номер лунки', 'number_hole']
+    par_hole = ['Пар лунки', 'par_hole']
+    difficulty_hole = ['Сложность лунки', 'difficulty_hole']
     # endregion Courses
     close_admin_panel = ['Закрыть админ панель', 'close_admin_panel']
     main_admin_panel = ['Основное меню админ панели', 'main_admin_panel']

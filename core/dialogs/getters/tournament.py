@@ -1,3 +1,4 @@
+import datetime
 from typing import List
 
 from aiogram_dialog import DialogManager
@@ -101,8 +102,18 @@ class TournamentGetter:
         dialog_data = dialog_manager.dialog_data
         obj_id: int = dialog_data.get(self.singular + '_id')
         obj: Object = await self.service.get_tournament_by_id(session=session, tournament_id=obj_id)
-        start = obj.start.strftime('%Y-%m-%d')
-        end = obj.end.strftime('%Y-%m-%d')
+        start = obj.start
+        end = obj.end
+        if isinstance(start, str):
+            start_datetime = datetime.datetime.strptime(start, '%Y-%m-%dT%H:%M:%S')
+            start = datetime.datetime.strftime(start_datetime, '%Y-%m-%d %H:%M')
+        elif isinstance(start, datetime.datetime):
+            start = datetime.datetime.strftime(start, '%Y-%m-%d %H:%M')
+        if isinstance(end, str):
+            end_datetime = datetime.datetime.strptime(end, '%Y-%m-%dT%H:%M:%S')
+            end = datetime.datetime.strftime(end_datetime, '%Y-%m-%d %H:%M')
+        elif isinstance(end, datetime.datetime):
+            end = datetime.datetime.strftime(end, '%Y-%m-%d %H:%M')
         obj.start = start
         obj.end = end
         data = {
@@ -124,6 +135,51 @@ class TournamentGetter:
         data = {
             self.singular: obj
         }
+        return data
+
+    async def get_totalscores(
+            self,
+            dialog_manager: DialogManager,
+            **middleware_data
+    ):
+        """ Get object by id """
+        middleware_data = dialog_manager.middleware_data
+        session = middleware_data.get('session')
+        dialog_data = dialog_manager.dialog_data
+        totalscores = dialog_data.get('totalscores')
+        totalscores_list = []
+        for totalscore in totalscores:
+            first_name = totalscore['user']['first_name']
+            last_name = totalscore['user']['last_name']
+            holes_completed = 0
+            count_impacts = 0
+            for score in totalscore['scores']:
+                if score['impacts']:
+                    holes_completed += 1
+                    count_impacts += score['impacts']
+            total = totalscore['total']
+            totalscores_list.append((first_name, last_name, count_impacts, holes_completed, total))
+        tournament_type = dialog_data.get('tournament_type')
+        result_list = []
+        if tournament_type == 'stableford':
+            result_list = sorted(totalscores_list, key=lambda x: x[-1], reverse=True)
+        elif tournament_type == 'stroke play' or tournament_type == 'stroke play nett':
+            result_list = sorted(totalscores_list, key=lambda x: x[-1])
+        data = {
+            'totalscores_list': result_list
+        }
+        return data
+
+    @staticmethod
+    async def get_impacts(
+            dialog_manager: DialogManager,
+            **middleware_data
+    ):
+        impacts_list = [(i, i) for i in range(1, 11)]
+        data = {
+            'impacts_list': impacts_list
+        }
+        dialog_manager.current_context().dialog_data.update(impacts_list=impacts_list)
         return data
 
 

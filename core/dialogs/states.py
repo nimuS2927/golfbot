@@ -31,6 +31,8 @@ class Game(StatesGroup):
     empty = State()
     empty_holes = State()
     end = State()
+    empty_top = State()
+    top = State()
 
 
 class Admin(StatesGroup):
@@ -41,6 +43,8 @@ class Admin(StatesGroup):
     show_tournaments = State()
     choice_tournament = State()
     info_tournament = State()
+    empty_top = State()
+    top = State()
     edit_tournament = State()
     create_tournament = State()
     delete_tournament = State()
@@ -54,20 +58,39 @@ class Admin(StatesGroup):
     # endregion Tournaments
     # region Users
     show_users = State()
+    empty_users = State()
     info_user = State()
     entered_handicap = State()
     delete_user = State()
     # endregion Users
     # region Admins
     show_admins = State()
+    info_admins = State()
+    info_admin_registration = State()
     delete_admin = State()
+    entered_admin_login = State()
+    entered_admin_password_1 = State()
+    entered_admin_password_2 = State()
     # endregion Admins
     # region Courses
     show_courses = State()
+    empty_courses = State()
     edit_course = State()
+    info_course = State()
+    info_course_without_holes = State()
     create_course = State()
     delete_course = State()
     # endregion Courses
+    # region Holes
+    show_holes = State()
+    edit_hole = State()
+    info_hole = State()
+    create_hole = State()
+    delete_hole = State()
+    entered_number = State()
+    entered_par = State()
+    entered_difficulty = State()
+    # endregion Holes
 
 
 class AllStates:

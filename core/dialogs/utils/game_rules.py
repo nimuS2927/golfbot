@@ -6,7 +6,6 @@ def stableford(
         hcp: int,
 ):
     handicap_index = round(handicap * hcp / 100)
-    print(handicap_index)
     edge_list = [0 for _ in range(18)]
     i = 0
     while i < handicap_index:

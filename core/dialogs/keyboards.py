@@ -26,6 +26,24 @@ def paginated_tournaments(
     )
 
 
+def paginated_impacts(
+        on_click,
+        width: int = SCROLLING_HEIGHT,
+        height: int = SCROLLING_WIDTH
+):
+    return ScrollingGroup(
+        Select(
+            Format("{item[1]}"),
+            id="s_scroll_impacts",
+            item_id_getter=operator.itemgetter(0),
+            items="impacts_list",
+            on_click=on_click,
+        ),
+        id="impacts_kb",
+        width=width, height=height,
+    )
+
+
 def paginated_holes(
         on_click,
         width: int = SCROLLING_HEIGHT,
@@ -76,5 +94,59 @@ def paginated_users(
             on_click=on_click,
         ),
         id="users_ids",
+        width=width, height=height,
+    )
+
+
+def paginated_admins(
+        on_click,
+        width: int = SCROLLING_HEIGHT,
+        height: int = SCROLLING_WIDTH
+):
+    return ScrollingGroup(
+        Select(
+            Format("{pos}. {item.login}"),
+            id="s_scroll_admins",
+            item_id_getter=operator.attrgetter('id'),
+            items="admins",
+            on_click=on_click,
+        ),
+        id="admins_ids",
+        width=width, height=height,
+    )
+
+
+def paginated_courses(
+        on_click,
+        width: int = SCROLLING_HEIGHT,
+        height: int = SCROLLING_WIDTH
+):
+    return ScrollingGroup(
+        Select(
+            Format("{pos}. {item[1]}"),
+            id="s_scroll_courses",
+            item_id_getter=operator.itemgetter(0),
+            items="courses_list",
+            on_click=on_click,
+        ),
+        id="courses_ids",
+        width=width, height=height,
+    )
+
+
+def paginated_holes_for_admin(
+        on_click,
+        width: int = SCROLLING_HEIGHT,
+        height: int = SCROLLING_WIDTH
+):
+    return ScrollingGroup(
+        Select(
+            Format("№{item.number} - {item.par} - {item.difficulty}"),
+            id="s_scroll_holes",
+            item_id_getter=operator.attrgetter('id'),
+            items="holes",
+            on_click=on_click,
+        ),
+        id="holes_ids",
         width=width, height=height,
     )

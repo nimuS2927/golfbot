@@ -1,4 +1,4 @@
-from typing import Dict, Union, List, Any
+from typing import Dict, Union, List, Any, Optional
 
 from aiohttp import ClientSession
 from pydantic import ValidationError
@@ -41,6 +41,43 @@ class CourseService(BaseService):
                 objs_dict = await response.json()
                 return [self._model.model_validate(dict_data) for dict_data in objs_dict]
             if response.status == 422:
+                raise ValidationError('Invalid request')
+            raise HTTPError('Server error')
+
+    async def get_courses_with_holes(
+            self,
+            session: ClientSession,
+    ) -> List[Dict[str, Any]]:
+        headers = await self.create_headers(session=session)
+        async with session.get(
+            self.api_urls.get_courses_with_holes(),
+            headers=headers,
+        ) as response:
+            if response.status == 200:
+                objs_dict = await response.json()
+                return objs_dict
+            elif response.status == 404:
+                return []
+            elif response.status == 422:
+                raise ValidationError('Invalid request')
+            raise HTTPError('Server error')
+
+    async def get_course_by_id_with_holes(
+            self,
+            session: ClientSession,
+            course_id: int,
+    ) -> Optional[Dict[str, Any]]:
+        headers = await self.create_headers(session=session)
+        async with session.get(
+            self.api_urls.get_course_by_id_with_holes(course_id),
+            headers=headers,
+        ) as response:
+            if response.status == 200:
+                obj_dict = await response.json()
+                return obj_dict
+            elif response.status == 404:
+                return None
+            elif response.status == 422:
                 raise ValidationError('Invalid request')
             raise HTTPError('Server error')
 

@@ -31,9 +31,12 @@ class TournamentService(BaseService):
         ) as response:
             if response.status == 200:
                 obj_dict = await response.json()
-                course: Course = Course.model_validate(obj_dict['course'])
-                obj_dict['course'] = course
-                return TournamentWithCourse.model_validate(obj_dict)
+                if course_status:
+                    course: Course = Course.model_validate(obj_dict['course'])
+                    obj_dict['course'] = course
+                    return TournamentWithCourse.model_validate(obj_dict)
+                else:
+                    return Tournament.model_validate(obj_dict)
             elif response.status == 404:
                 return None
             elif response.status == 422:
@@ -204,7 +207,6 @@ class TournamentService(BaseService):
             data: CreateTournament
     ) -> Tournament:
         headers = await self.create_headers(session=session)
-        print(data)
         async with session.post(
             self.api_urls.post_tournament(),
             headers=headers,
@@ -267,4 +269,23 @@ class TournamentService(BaseService):
                 logger.debug("fail requests for tournament")
                 raise ValidationError('Invalid request')
             logger.debug("other error after requests for tournament")
+            raise HTTPError('Server error')
+
+    async def get_tournament_for_top(
+            self,
+            session: ClientSession,
+            tournament_id: int,
+    ) -> Optional[Dict[str, Any]]:
+        headers = await self.create_headers(session=session)
+        async with session.get(
+            self.api_urls.get_tournaments_for_top(tournament_id),
+            headers=headers,
+        ) as response:
+            if response.status == 200:
+                obj_dict = await response.json()
+                return obj_dict
+            elif response.status == 404:
+                return None
+            elif response.status == 422:
+                raise ValidationError('Invalid tournament id')
             raise HTTPError('Server error')

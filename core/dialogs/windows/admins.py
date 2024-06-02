@@ -10,7 +10,7 @@ from core.config import c_project
 from core.main.keyboards.buttons import AdminKB, MainKB
 from core.dialogs import keyboards
 from core.dialogs.selected import admin as s_admin
-from core.dialogs.getters import g_admin
+from core.dialogs.getters import g_admin, g_tournament
 from core.dialogs.states import all_states
 from core.dialogs.utils import alphabet
 
@@ -59,20 +59,20 @@ class AdminWindows:
     def admin_window():
         return Window(
             Const('Привет, чем займемся?'),
-            Button(
+            SwitchTo(
                 Format(f'{AdminKB.tournaments[0]}'),
                 id=AdminKB.tournaments[1],
-                on_click=s_admin.on_tournaments
+                state=all_states.admin.show_tournaments
             ),
-            Button(
+            SwitchTo(
                 Format(f'{AdminKB.admins[0]}'),
                 id=AdminKB.admins[1],
-                on_click=s_admin.on_admins
+                state=all_states.admin.show_admins,
             ),
             Button(
                 Format(f'{AdminKB.users[0]}'),
                 id=AdminKB.users[1],
-                on_click=s_admin.on_users
+                on_click=s_admin.on_show_users
             ),
             Button(
                 Format(f'{AdminKB.courses[0]}'),
@@ -109,7 +109,11 @@ class AdminWindows:
                 on_click=s_admin.on_create_tournaments
             ),
             Row(
-                Back(Format(f'{MainKB.back[0]}')),
+                SwitchTo(
+                    (Format(f'{MainKB.back[0]}')),
+                    id=MainKB.back[1],
+                    state=all_states.admin.start
+                ),
                 Button(
                     Format(f'{AdminKB.close_admin_panel[0]}'),
                     id=AdminKB.close_admin_panel[1],
@@ -130,7 +134,11 @@ class AdminWindows:
                 height=5,
             ),
             Row(
-                Back(Format(f'{MainKB.back[0]}')),
+                SwitchTo(
+                    (Format(f'{MainKB.back[0]}')),
+                    id=MainKB.back[1],
+                    state=all_states.admin.show_tournaments
+                ),
                 Button(
                     Format(f'{AdminKB.close_admin_panel[0]}'),
                     id=AdminKB.close_admin_panel[1],
@@ -145,17 +153,24 @@ class AdminWindows:
     def info_tournament_window():
         return Window(
             Format('''Информация о выбранном турнире. 
-Название: {tournament.name}
-Тип турнира: {tournament.type}
-Максимальное количество флайтов: {tournament.max_flights}
-Название поля: {tournament.course.name}
-Стартует: {tournament.start}
-Заканчивается: {tournament.end}
-HCP: {tournament.hcp}'''),
-            Button(
-                Format(f'{AdminKB.start_tournaments[0]}'),
-                id=AdminKB.start_tournaments[1],
-                on_click=s_admin.on_start_tournament
+Название: {tournament_name}
+Тип турнира: {tournament_type}
+Максимальное количество флайтов: {tournament_flights}
+Название поля: {course_name}
+Стартует: {start_day}
+Заканчивается: {end_day}
+HCP: {hcp}'''),
+            Row(
+                Button(
+                    Format(f'{AdminKB.start_tournaments[0]}'),
+                    id=AdminKB.start_tournaments[1],
+                    on_click=s_admin.on_start_tournament
+                ),
+                Button(
+                    Format(f'{AdminKB.top_tournament[0]}'),
+                    id=AdminKB.top_tournament[1],
+                    on_click=s_admin.on_top
+                ),
             ),
             Row(
                 Button(
@@ -175,7 +190,11 @@ HCP: {tournament.hcp}'''),
                 state=all_states.admin.start
             ),
             Row(
-                Back(Format(f'{MainKB.back[0]}')),
+                SwitchTo(
+                    (Format(f'{MainKB.back[0]}')),
+                    id=MainKB.back[1],
+                    state=all_states.admin.show_tournaments
+                ),
                 Button(
                     Format(f'{AdminKB.close_admin_panel[0]}'),
                     id=AdminKB.close_admin_panel[1],
@@ -184,6 +203,35 @@ HCP: {tournament.hcp}'''),
             ),
             state=all_states.admin.info_tournament,
             getter=g_admin.get_tournament
+        )
+
+    @staticmethod
+    def empty_top_window():
+        return Window(
+            Const('Топ пока пуст'),
+            SwitchTo(
+                Const(f'{MainKB.back[0]}'),
+                id=MainKB.back[1],
+                state=all_states.admin.info_tournament
+            ),
+            state=all_states.admin.empty_top,
+        )
+
+    @staticmethod
+    def top_window():
+        return Window(
+            Format('Топ игроков турнира:'),
+            List(
+                Format('{pos}. {item[0]} {item[1]} Удары/Лунки - {item[2]}/{item[3]} шт. Счёт: {item[4]}'),
+                items='totalscores_list'
+            ),
+            SwitchTo(
+                Const(f'{MainKB.back[0]}'),
+                id=MainKB.back[1],
+                state=all_states.admin.info_tournament
+            ),
+            state=all_states.admin.top,
+            getter=g_tournament.get_totalscores
         )
 
     @staticmethod
@@ -202,7 +250,11 @@ HCP: {hcp}'''),
                 on_click=s_admin.on_confirm_tournaments
             ),
             Row(
-                Back(Format(f'{MainKB.back[0]}')),
+                SwitchTo(
+                    (Format(f'{MainKB.back[0]}')),
+                    id=MainKB.back[1],
+                    state=all_states.admin.info_tournament
+                ),
                 Button(
                     Format(f'{AdminKB.close_admin_panel[0]}'),
                     id=AdminKB.close_admin_panel[1],
@@ -367,6 +419,7 @@ HCP: {hcp}'''),
             ),
             state=all_states.admin.entered_hcp,
         )
+
     # endregion tournament
 
     # region Users
@@ -380,7 +433,11 @@ HCP: {hcp}'''),
                 height=5,
             ),
             Row(
-                Back(Format(f'{MainKB.back[0]}')),
+                SwitchTo(
+                    (Format(f'{MainKB.back[0]}')),
+                    id=MainKB.back[1],
+                    state=all_states.admin.start
+                ),
                 Button(
                     Format(f'{AdminKB.close_admin_panel[0]}'),
                     id=AdminKB.close_admin_panel[1],
@@ -389,6 +446,25 @@ HCP: {hcp}'''),
             ),
             state=all_states.admin.show_users,
             getter=g_admin.get_users
+        )
+
+    @staticmethod
+    def empty_user_window():
+        return Window(
+            Format('Пользователи не зарегистрированы'),
+            Row(
+                SwitchTo(
+                    (Format(f'{MainKB.back[0]}')),
+                    id=MainKB.back[1],
+                    state=all_states.admin.start
+                ),
+                Button(
+                    Format(f'{AdminKB.close_admin_panel[0]}'),
+                    id=AdminKB.close_admin_panel[1],
+                    on_click=s_admin.on_close_admin_panel
+                ),
+            ),
+            state=all_states.admin.empty_users,
         )
 
     @staticmethod
@@ -418,7 +494,11 @@ ID телеграмма: {user.id_telegram}
                 state=all_states.admin.start
             ),
             Row(
-                Back(Format(f'{MainKB.back[0]}')),
+                SwitchTo(
+                    (Format(f'{MainKB.back[0]}')),
+                    id=MainKB.back[1],
+                    state=all_states.admin.show_users
+                ),
                 Button(
                     Format(f'{AdminKB.close_admin_panel[0]}'),
                     id=AdminKB.close_admin_panel[1],
@@ -439,7 +519,11 @@ ID телеграмма: {user.id_telegram}
                 on_click=s_admin.on_confirm_delete_user
             ),
             Row(
-                Back(Format(f'{MainKB.back[0]}')),
+                SwitchTo(
+                    (Format(f'{MainKB.back[0]}')),
+                    id=MainKB.back[1],
+                    state=all_states.admin.info_user
+                ),
                 Button(
                     Format(f'{AdminKB.close_admin_panel[0]}'),
                     id=AdminKB.close_admin_panel[1],
@@ -459,13 +543,460 @@ ID телеграмма: {user.id_telegram}
             ),
             state=all_states.admin.entered_handicap,
         )
+
     # endregion Users
 
     # region Admins
+    @staticmethod
+    def choice_admin_window():
+        return Window(
+            Format('Выбери нужного админа'),
+            keyboards.paginated_admins(
+                on_click=s_admin.on_choice_admin,
+                width=1,
+                height=5,
+            ),
+            SwitchTo(
+                Const(f'{AdminKB.admin_registration[0]}'),
+                id=AdminKB.admin_registration[1],
+                state=all_states.admin.info_admin_registration,
+            ),
+            Row(
+                SwitchTo(
+                    (Format(f'{MainKB.back[0]}')),
+                    id=MainKB.back[1],
+                    state=all_states.admin.start
+                ),
+                Button(
+                    Format(f'{AdminKB.close_admin_panel[0]}'),
+                    id=AdminKB.close_admin_panel[1],
+                    on_click=s_admin.on_close_admin_panel
+                ),
+            ),
+            state=all_states.admin.show_admins,
+            getter=g_admin.get_admins
+        )
 
+    @staticmethod
+    def info_admin_window():
+        return Window(
+            Format('''Информация о выбранном админе. 
+ТГ ID: {admin.login}'''),
+            Row(
+                SwitchTo(
+                    Format(f'{AdminKB.delete_admin[0]}'),
+                    id=AdminKB.delete_admin[1],
+                    state=all_states.admin.delete_admin
+                ),
+            ),
+            SwitchTo(
+                Const(f'{AdminKB.main_admin_panel[0]}'),
+                id=AdminKB.main_admin_panel[1],
+                state=all_states.admin.start
+            ),
+            Row(
+                SwitchTo(
+                    (Format(f'{MainKB.back[0]}')),
+                    id=MainKB.back[1],
+                    state=all_states.admin.show_admins
+                ),
+                Button(
+                    Format(f'{AdminKB.close_admin_panel[0]}'),
+                    id=AdminKB.close_admin_panel[1],
+                    on_click=s_admin.on_close_admin_panel
+                ),
+            ),
+            state=all_states.admin.info_admins,
+            getter=g_admin.get_admin
+        )
+
+    @staticmethod
+    def delete_admin_window():
+        return Window(
+            Format('''Вы точно хотите удалить этого админа?'''),
+            Button(
+                Const(f'{AdminKB.confirm[0]}'),
+                id=AdminKB.confirm[1],
+                on_click=s_admin.on_confirm_delete_admin
+            ),
+            Row(
+                SwitchTo(
+                    (Format(f'{MainKB.back[0]}')),
+                    id=MainKB.back[1],
+                    state=all_states.admin.info_admins
+                ),
+                Button(
+                    Format(f'{AdminKB.close_admin_panel[0]}'),
+                    id=AdminKB.close_admin_panel[1],
+                    on_click=s_admin.on_close_admin_panel
+                ),
+            ),
+            state=all_states.admin.delete_admin,
+        )
+
+    @staticmethod
+    def info_admin_registration_window():
+        return Window(
+            Format('''Регистрационная информация о  админе. 
+ТГ ID (логин): {dialog_data[login]}
+Пароль: {dialog_data[stars_1]}'''),
+            SwitchTo(
+                Const(f'{AdminKB.entered_login[0]}'),
+                id=AdminKB.entered_login[1],
+                state=all_states.admin.entered_admin_login
+            ),
+            SwitchTo(
+                Const(f'{AdminKB.entered_password[0]}'),
+                id=AdminKB.entered_password[1],
+                state=all_states.admin.entered_admin_password_1
+            ),
+            Row(
+                Button(
+                    Format(f'{AdminKB.confirm_registration[0]}'),
+                    id=AdminKB.confirm_registration[1],
+                    on_click=s_admin.on_confirm_registration_admin
+                ),
+                SwitchTo(
+                    Const(f'{AdminKB.main_admin_panel[0]}'),
+                    id=AdminKB.main_admin_panel[1],
+                    state=all_states.admin.start
+                ),
+            ),
+            Row(
+                SwitchTo(
+                    (Format(f'{MainKB.back[0]}')),
+                    id=MainKB.back[1],
+                    state=all_states.admin.show_admins
+                ),
+                Button(
+                    Format(f'{AdminKB.close_admin_panel[0]}'),
+                    id=AdminKB.close_admin_panel[1],
+                    on_click=s_admin.on_close_admin_panel
+                ),
+            ),
+            state=all_states.admin.info_admin_registration,
+            getter=g_admin.get_admin_registration
+        )
+
+    @staticmethod
+    def entered_admin_login_window():
+        return Window(
+            Const('Введите логин для админа:'),
+            TextInput(
+                id='admin_login',
+                on_success=s_admin.on_entered_admin_login
+            ),
+            state=all_states.admin.entered_admin_login,
+        )
+
+    @staticmethod
+    def entered_admin_password_1_window():
+        return Window(
+            Const('Введите пароль для админа:'),
+            TextInput(
+                id='admin_password_1',
+                on_success=s_admin.on_entered_admin_password_1
+            ),
+            state=all_states.admin.entered_admin_password_1,
+        )
+
+    @staticmethod
+    def entered_admin_password_2_window():
+        return Window(
+            Const('Продублируйте пароль для админа:'),
+            TextInput(
+                id='admin_password_2',
+                on_success=s_admin.on_entered_admin_password_2
+            ),
+            state=all_states.admin.entered_admin_password_2,
+        )
     # endregion Admins
 
     # region Courses
+    @staticmethod
+    def choice_course_window():
+        return Window(
+            Format('Выбери нужное поле'),
+            keyboards.paginated_courses(
+                on_click=s_admin.on_choice_course,
+                width=1,
+                height=5,
+            ),
+            SwitchTo(
+                Const(f'{AdminKB.create_course[0]}'),
+                id=AdminKB.create_course[1],
+                state=all_states.admin.create_course
+            ),
+            Row(
+                SwitchTo(
+                    (Format(f'{MainKB.back[0]}')),
+                    id=MainKB.back[1],
+                    state=all_states.admin.start
+                ),
+                Button(
+                    Format(f'{AdminKB.close_admin_panel[0]}'),
+                    id=AdminKB.close_admin_panel[1],
+                    on_click=s_admin.on_close_admin_panel
+                ),
+            ),
+            state=all_states.admin.show_courses,
+            getter=g_admin.get_courses
+        )
 
+    @staticmethod
+    def create_course_entered_name_window():
+        return Window(
+            Const('Введите название поля:'),
+            TextInput(
+                id='course_name',
+                on_success=s_admin.on_entered_course_name_for_create
+            ),
+            state=all_states.admin.create_course,
+        )
+
+    @staticmethod
+    def empty_course_window():
+        return Window(
+            Format('У вас нет созданных полей'),
+            SwitchTo(
+                Const(f'{AdminKB.create_course[0]}'),
+                id=AdminKB.create_course[1],
+                state=all_states.admin.create_course
+            ),
+            Row(
+                SwitchTo(
+                    (Format(f'{MainKB.back[0]}')),
+                    id=MainKB.back[1],
+                    state=all_states.admin.start
+                ),
+                Button(
+                    Format(f'{AdminKB.close_admin_panel[0]}'),
+                    id=AdminKB.close_admin_panel[1],
+                    on_click=s_admin.on_close_admin_panel
+                ),
+            ),
+            state=all_states.admin.empty_courses,
+        )
+
+    @staticmethod
+    def info_course_window():
+        return Window(
+            Format('Поле: {dialog_data[course][name]}'),
+            Const('Лунки:'),
+            List(
+                Format('№{item.number} - {item.par} [пар] - {item.difficulty} [сложность]'),
+                items='holes'
+            ),
+            Row(
+                SwitchTo(
+                    Const(f'{AdminKB.edit_holes[0]}'),
+                    id=AdminKB.edit_holes[1],
+                    state=all_states.admin.show_holes,
+                    on_click=s_admin.on_holes_actions
+                ),
+                Button(
+                    Const(f'{AdminKB.create_hole[0]}'),
+                    id=AdminKB.create_hole[1],
+                    on_click=s_admin.on_holes_actions
+                ),
+                SwitchTo(
+                    Const(f'{AdminKB.delete_holes[0]}'),
+                    id=AdminKB.delete_holes[1],
+                    state=all_states.admin.show_holes,
+                    on_click=s_admin.on_holes_actions
+                ),
+            ),
+            Row(
+                SwitchTo(
+                    (Format(f'{MainKB.back[0]}')),
+                    id=MainKB.back[1],
+                    state=all_states.admin.show_courses
+                ),
+                Button(
+                    Format(f'{AdminKB.close_admin_panel[0]}'),
+                    id=AdminKB.close_admin_panel[1],
+                    on_click=s_admin.on_close_admin_panel
+                ),
+            ),
+            state=all_states.admin.info_course,
+            getter=g_admin.get_holes
+        )
+
+    @staticmethod
+    def info_course_without_holes_window():
+        return Window(
+            Format('Поле: {dialog_data[course][name]}'),
+            Const('Лунки не созданы'),
+            Row(
+                Button(
+                    Const(f'{AdminKB.create_hole[0]}'),
+                    id=AdminKB.create_hole[1],
+                    on_click=s_admin.on_holes_actions
+                ),
+                SwitchTo(
+                    Format(f'{AdminKB.delete_course[0]}'),
+                    id=AdminKB.delete_course[1],
+                    state=all_states.admin.delete_course
+                ),
+            ),
+
+            Row(
+                SwitchTo(
+                    (Format(f'{MainKB.back[0]}')),
+                    id=MainKB.back[1],
+                    state=all_states.admin.show_courses
+                ),
+                Button(
+                    Format(f'{AdminKB.close_admin_panel[0]}'),
+                    id=AdminKB.close_admin_panel[1],
+                    on_click=s_admin.on_close_admin_panel
+                ),
+            ),
+            state=all_states.admin.info_course_without_holes,
+        )
+
+    @staticmethod
+    def show_holes_window():
+        return Window(
+            Format('Выбери нужную лунку'),
+            keyboards.paginated_holes_for_admin(
+                on_click=s_admin.on_choice_hole,
+                width=3,
+                height=6,
+            ),
+            Row(
+                SwitchTo(
+                    (Format(f'{MainKB.back[0]}')),
+                    id=MainKB.back[1],
+                    state=all_states.admin.info_course
+                ),
+                Button(
+                    Format(f'{AdminKB.close_admin_panel[0]}'),
+                    id=AdminKB.close_admin_panel[1],
+                    on_click=s_admin.on_close_admin_panel
+                ),
+            ),
+            state=all_states.admin.show_holes,
+            getter=g_admin.get_holes
+        )
+
+    @staticmethod
+    def info_hole_window():
+        return Window(
+            Format('(№{dialog_data[number]}) - ({dialog_data[par]} [пар]) - ({dialog_data[difficulty]} [сложность])'),
+            SwitchTo(
+                Const(f'{AdminKB.number_hole[0]}'),
+                id=AdminKB.number_hole[1],
+                state=all_states.admin.entered_number
+            ),
+            SwitchTo(
+                Const(f'{AdminKB.par_hole[0]}'),
+                id=AdminKB.par_hole[1],
+                state=all_states.admin.entered_par
+            ),
+            SwitchTo(
+                Const(f'{AdminKB.difficulty_hole[0]}'),
+                id=AdminKB.difficulty_hole[1],
+                state=all_states.admin.entered_difficulty
+            ),
+            Button(
+                Const(f'{AdminKB.confirm[0]}'),
+                id=AdminKB.confirm[1],
+                on_click=s_admin.on_confirm_hole
+            ),
+            Row(
+                SwitchTo(
+                    (Format(f'{MainKB.back[0]}')),
+                    id=MainKB.back[1],
+                    state=all_states.admin.show_courses
+                ),
+                Button(
+                    Format(f'{AdminKB.close_admin_panel[0]}'),
+                    id=AdminKB.close_admin_panel[1],
+                    on_click=s_admin.on_close_admin_panel
+                ),
+            ),
+            state=all_states.admin.info_hole,
+        )
+
+    @staticmethod
+    def entered_number_window():
+        return Window(
+            Const('Введите номер лунки:'),
+            TextInput(
+                id='hole_number',
+                on_success=s_admin.on_entered_number
+            ),
+            state=all_states.admin.entered_number,
+        )
+
+    @staticmethod
+    def entered_par_window():
+        return Window(
+            Const('Введите пар лунки:'),
+            TextInput(
+                id='hole_par',
+                on_success=s_admin.on_entered_par
+            ),
+            state=all_states.admin.entered_par,
+        )
+
+    @staticmethod
+    def entered_difficulty_window():
+        return Window(
+            Const('Введите сложность лунки:'),
+            TextInput(
+                id='hole_par',
+                on_success=s_admin.on_entered_difficulty
+            ),
+            state=all_states.admin.entered_difficulty,
+        )
+
+    @staticmethod
+    def delete_hole_window():
+        return Window(
+            Format('''Вы точно хотите удалить эту лунку?'''),
+            Button(
+                Const(f'{AdminKB.confirm[0]}'),
+                id=AdminKB.confirm[1],
+                on_click=s_admin.on_confirm_hole
+            ),
+            Row(
+                SwitchTo(
+                    (Format(f'{MainKB.back[0]}')),
+                    id=MainKB.back[1],
+                    state=all_states.admin.info_hole
+                ),
+                Button(
+                    Format(f'{AdminKB.close_admin_panel[0]}'),
+                    id=AdminKB.close_admin_panel[1],
+                    on_click=s_admin.on_close_admin_panel
+                ),
+            ),
+            state=all_states.admin.delete_hole,
+        )
+
+    @staticmethod
+    def delete_course_window():
+        return Window(
+            Format('''Вы точно хотите удалить это поле?'''),
+            Button(
+                Const(f'{AdminKB.confirm[0]}'),
+                id=AdminKB.confirm[1],
+                on_click=s_admin.on_confirm_delete_course
+            ),
+            Row(
+                SwitchTo(
+                    (Format(f'{MainKB.back[0]}')),
+                    id=MainKB.back[1],
+                    state=all_states.admin.info_course_without_holes
+                ),
+                Button(
+                    Format(f'{AdminKB.close_admin_panel[0]}'),
+                    id=AdminKB.close_admin_panel[1],
+                    on_click=s_admin.on_close_admin_panel
+                ),
+            ),
+            state=all_states.admin.delete_course,
+        )
     # endregion Courses
-

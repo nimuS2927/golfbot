@@ -6,13 +6,16 @@ from aiogram.types import CallbackQuery, Message
 from aiogram_dialog import DialogManager
 from aiogram_dialog.widgets.kbd import Button
 
-from core.dialogs.schemas.admins import GetAdmin, AdminSchemas
+from core.dialogs.schemas.admins import GetAdmin, AdminSchemas, CreateAdmin
+from core.dialogs.schemas.courses import Course, CreateCourse
+from core.dialogs.schemas.holes import CreateHole, Hole, UpdateHolePartial
 from core.dialogs.schemas.tournaments import Tournament, UpdateTournamentPartial, CreateTournament, TournamentWithCourse
 from core.dialogs.schemas.users import UpdateUserPartial
 from core.dialogs.states import all_states
 from core.dialogs.services import all_services
 
 # region Common func admins
+from core.dialogs.utils.getters_obj_from_list import get_obj_by_attribute, get_obj_by_key
 from core.main.keyboards.buttons import AdminKB
 
 
@@ -114,14 +117,6 @@ async def on_close_admin_panel(
 
 
 # region Tournaments
-async def on_tournaments(
-        callback: CallbackQuery,
-        button: Button,
-        manager: DialogManager,
-):
-    await manager.switch_to(state=all_states.admin.show_tournaments)
-
-
 async def on_nearest_tournaments(
         callback: CallbackQuery,
         button: Button,
@@ -160,7 +155,8 @@ async def on_choice_tournament(
     )
     context.dialog_data.update(
         tournament_id=int(item_id),
-        tournament=tournament
+        tournament=tournament,
+        update_status=True,
     )
     await manager.switch_to(state=all_states.admin.info_tournament)
 
@@ -183,19 +179,42 @@ async def on_start_tournament(
             session=session,
             tournament_id=tournament_id
         )
-
-        tournament = await all_services.tournament.get_tournament_by_id(
-            session=session,
-            tournament_id=tournament_id,
-            course_status=True
-        )
-        if tournament.status:
-            manager.dialog_data.update(tournament=tournament)
+        if tournament:
+            manager.dialog_data.update(update_status=True)
             await callback.message.answer('Турнир запущен!!!')
             await manager.switch_to(state=all_states.admin.info_tournament)
     else:
         await callback.message.answer('Этот турнир уже запущен!')
         await manager.switch_to(state=all_states.admin.info_tournament)
+
+
+async def on_top(
+        callback: CallbackQuery,
+        button: Button,
+        manager: DialogManager,
+):
+    # region Получаем промежуточные и входные данные
+    # region Сессия
+    middleware_data = manager.middleware_data
+    session = middleware_data.get('session')
+    # endregion
+    # region Данные из контекста
+    context = manager.current_context()
+    tournament_id: int = context.dialog_data.get('tournament_id')
+    # endregion
+    # endregion
+    # region Получаем турнир с общими счетами каждого игрока
+    tournament_dict = await all_services.tournament.get_tournament_for_top(
+        session=session,
+        tournament_id=int(tournament_id)
+    )
+    totalscores = tournament_dict.get('totalscores')
+    # endregion
+    if not totalscores:
+        await manager.switch_to(all_states.admin.empty_top)
+    else:
+        context.dialog_data.update(totalscores=totalscores, tournament_type=tournament_dict['type'])
+        await manager.switch_to(all_states.admin.top)
 
 
 # region Ввод данных по турниру
@@ -291,7 +310,8 @@ async def on_entered_start(
         return
     today = datetime.today()
     if today > input_date:
-        await m.reply(f'Дата старта турнира {start_day.strip()!r} не может быть раньше сегодняшнего дня {today!r}')
+        await m.reply(
+            f'Дата старта турнира {start_day.strip()!r} не может быть раньше сегодняшнего дня {today.strftime("%Y-%m-%d %H:%M:%S")!r}')
         return
     datetime_str = input_date.strftime('%Y-%m-%d %H:%M:%S')
     context.dialog_data.update(start_day=datetime_str)
@@ -334,7 +354,8 @@ async def on_entered_end(
         return
     today = datetime.today()
     if today > input_date:
-        await m.reply(f'Дата старта турнира {end_day.strip()!r} не может быть раньше сегодняшнего дня {today!r}')
+        await m.reply(
+            f'Дата старта турнира {end_day.strip()!r} не может быть раньше сегодняшнего дня {today.strftime("%Y-%m-%d %H:%M:%S")!r}')
         return
     datetime_str = input_date.strftime('%Y-%m-%d %H:%M:%S')
     context.dialog_data.update(end_day=datetime_str)
@@ -380,7 +401,7 @@ async def on_update_tournaments(
 ):
     context = manager.current_context()
     action = button.widget_id
-    context.dialog_data.update(action=action)
+    context.dialog_data.update(action=action, update_status=True)
     await manager.switch_to(state=all_states.admin.edit_tournament)
 
 
@@ -391,7 +412,7 @@ async def on_delete_tournaments(
 ):
     context = manager.current_context()
     action = button.widget_id
-    context.dialog_data.update(action=action)
+    context.dialog_data.update(action=action, update_status=True)
     await manager.switch_to(state=all_states.admin.delete_tournament)
 
 
@@ -423,7 +444,7 @@ async def on_confirm_tournaments(
                 id_course=id_course,
                 start=start_day,
                 end=end_day,
-                hcp=hcp,
+                hcp=hcp if hcp else None,
             )
         except ValueError:
             await callback.message.answer('Вы заполнили не все требуемые поля')
@@ -457,33 +478,146 @@ async def on_confirm_tournaments(
     elif action == AdminKB.delete_tournaments[1]:
         await all_services.tournament.delete_tournament(
             session=session,
-            tournament_id=tournament_id
+            tournament_id=tournament_id,
         )
-        await manager.switch_to(state=all_states.admin.choice_tournament)
+        await manager.switch_to(state=all_states.admin.show_tournaments)
 
 
 # endregion Tournaments
 # endregion Tournaments
 
 # region Admins
-async def on_admins(
+async def on_choice_admin(
+        callback: CallbackQuery,
+        button: Button,
+        manager: DialogManager,
+        item_id: int,
+):
+    context = manager.current_context()
+    context.dialog_data.update(admin_id=int(item_id))
+    await manager.switch_to(state=all_states.admin.info_admins)
+
+
+async def on_entered_admin_login(
+        m: Message,
+        widget: Any,
+        manager: DialogManager,
+        login: str,
+):
+    context = manager.current_context()
+    try:
+        int(login)
+    except ValueError:
+        await m.reply('Логин это ID телеграмма и он должен содержать только цифры')
+        return
+    context.dialog_data.update(login=login)
+    await manager.switch_to(state=all_states.admin.info_admin_registration)
+
+
+async def on_entered_admin_password_1(
+        m: Message,
+        widget: Any,
+        manager: DialogManager,
+        password_1: str,
+):
+    context = manager.current_context()
+    valid_name = re.sub(r'[^a-zA-Z]', '', password_1)
+    if len(password_1) != len(valid_name):
+        await m.delete()
+        await m.answer('Пароль должен содержать только заглавные и прописные буквы английского алфавита')
+        return
+    context.dialog_data.update(password_1=password_1, stars_1='*' * len(password_1))
+    await m.delete()
+    await manager.switch_to(state=all_states.admin.entered_admin_password_2)
+
+
+async def on_entered_admin_password_2(
+        m: Message,
+        widget: Any,
+        manager: DialogManager,
+        password_2: str,
+):
+    context = manager.current_context()
+    valid_name = re.sub(r'[^a-zA-Z]', '', password_2)
+    if len(password_2) != len(valid_name):
+        await m.delete()
+        await m.answer('Пароль должен содержать только заглавные и прописные буквы английского алфавита')
+        return
+    password_1 = context.dialog_data.get('password_1')
+    if password_1 != password_2:
+        await m.delete()
+        await m.answer('Введенные пароли не совпадают, повторите попытку')
+        await manager.switch_to(state=all_states.admin.entered_admin_password_1)
+        return
+    context.dialog_data.update(password_2=password_2, stars_2='*' * len(password_2))
+    await m.delete()
+    await manager.switch_to(state=all_states.admin.info_admin_registration)
+
+
+async def on_confirm_registration_admin(
         callback: CallbackQuery,
         button: Button,
         manager: DialogManager,
 ):
-    await manager.switch_to(state=all_states.admin.show_admin)
+    middleware_data = manager.middleware_data
+    session = middleware_data.get('session')
+    context = manager.current_context()
+    login = context.dialog_data.get('login')
+    if not login:
+        await callback.message.reply('Не введен логин')
+        return
+    password_1 = context.dialog_data.get('password_1')
+    if not password_1:
+        await callback.message.reply('Не введен пароль')
+        return
+    password_2 = context.dialog_data.get('password_2')
+    if not password_2:
+        await callback.message.reply('Не введен пароль второй раз')
+        return
+    admin_form: CreateAdmin = CreateAdmin(login=login, password=password_1)
+    await all_services.admin.post_create_admin(
+        session=session,
+        admin_form=admin_form
+    )
+    await manager.switch_to(all_states.admin.show_admins)
+
+
+async def on_confirm_delete_admin(
+        callback: CallbackQuery,
+        button: Button,
+        manager: DialogManager,
+):
+    middleware_data = manager.middleware_data
+    session = middleware_data.get('session')
+    context = manager.current_context()
+    dialog_data = context.dialog_data
+    admin_id = dialog_data.get('admin_id')
+    await all_services.admin.delete_admin_by_id(
+        session=session,
+        admin_id=admin_id,
+    )
+    await manager.switch_to(all_states.admin.show_admins)
 
 
 # endregion Admins
 
 
 # region Users
-async def on_users(
+async def on_show_users(
         callback: CallbackQuery,
         button: Button,
         manager: DialogManager,
 ):
-    await manager.switch_to(state=all_states.admin.show_users)
+    context = manager.current_context()
+    middleware_data = manager.middleware_data
+    session = middleware_data.get('session')
+    users = await all_services.user.get_users_all(
+        session=session,
+    )
+    if not users:
+        await manager.switch_to(state=all_states.admin.empty_users)
+    else:
+        await manager.switch_to(state=all_states.admin.show_users)
 
 
 async def on_choice_user(
@@ -540,6 +674,8 @@ async def on_confirm_delete_user(
         user_id=user_id
     )
     await manager.switch_to(all_states.admin.show_users)
+
+
 # endregion Users
 
 
@@ -549,5 +685,304 @@ async def on_course(
         button: Button,
         manager: DialogManager,
 ):
-    pass
+    # region получаем промежуточные данные
+    middleware_data = manager.middleware_data
+    session = middleware_data.get('session')
+    context = manager.current_context()
+    # endregion
+    # region Получаем поля с лунками из БД
+    courses = await all_services.course.get_courses_with_holes(
+        session=session,
+    )
+    if not courses:
+        await manager.switch_to(all_states.admin.empty_courses)
+    else:
+        context.dialog_data.update(
+            courses=courses,
+        )
+        await manager.switch_to(all_states.admin.show_courses)
+    # endregion
+
+
+async def on_choice_course(
+        callback: CallbackQuery,
+        button: Button,
+        manager: DialogManager,
+        item_id: int,
+):
+    context = manager.current_context()
+    middleware_data = manager.middleware_data
+    session = middleware_data.get('session')
+    courses = context.dialog_data.get('courses')
+    courses_update = context.dialog_data.get('courses_update')
+    if courses_update:
+        courses = await all_services.course.get_courses_with_holes(
+            session=session,
+        )
+        courses_update = False
+        context.dialog_data.update(
+            courses=courses,
+            courses_update=courses_update,
+        )
+    middleware_data = manager.middleware_data
+    session = middleware_data.get('session')
+    course = get_obj_by_key(courses, 'id', int(item_id))
+    # course = await all_services.course.get_course_by_id_with_holes(
+    #     session=session,
+    #     course_id=int(item_id)
+    # )
+    if not course.get('holes'):
+        context.dialog_data.update(
+            course=course,
+            id_course=int(item_id)
+        )
+        await manager.switch_to(state=all_states.admin.info_course_without_holes)
+    else:
+        holes_dict: List[Dict[str, Any]] = sorted(course['holes'], key=lambda x: x['number'])
+        holes: List[Hole] = [Hole.model_validate(hole) for hole in holes_dict]
+        context.dialog_data.update(
+            holes=holes,
+            course=course,
+            id_course=int(item_id)
+        )
+        await manager.switch_to(state=all_states.admin.info_course)
+
+
+async def on_holes_actions(
+        callback: CallbackQuery,
+        button: Button,
+        manager: DialogManager,
+):
+    context = manager.current_context()
+    hole_action = button.widget_id
+    if hole_action == AdminKB.edit_holes[1]:
+        pass
+    elif hole_action == AdminKB.create_hole[1]:
+        holes = context.dialog_data.get('holes')
+        if not holes:
+            holes = []
+        if len(holes) < 18:
+            number = ' '
+            par = ' '
+            difficulty = ' '
+            context.dialog_data.update(
+                number=number,
+                par=par,
+                difficulty=difficulty,
+            )
+            await manager.switch_to(state=all_states.admin.info_hole)
+        else:
+            await callback.message.answer('На поле максимум 18 лунок')
+            return
+    elif hole_action == AdminKB.delete_holes[1]:
+        pass
+    context.dialog_data.update(
+        hole_action=hole_action,
+    )
+
+
+async def on_choice_hole(
+        callback: CallbackQuery,
+        button: Button,
+        manager: DialogManager,
+        item_id: int,
+):
+    # region получаем промежуточные данные
+    middleware_data = manager.middleware_data
+    session = middleware_data.get('session')
+    context = manager.current_context()
+    # endregion
+    holes = context.dialog_data.get('holes')
+    hole = get_obj_by_attribute(holes, 'id', int(item_id))
+    hole_action = context.dialog_data.get('hole_action')
+    if hole_action == AdminKB.delete_holes[1]:
+        context.dialog_data.update(
+            hole=hole,
+        )
+        await manager.switch_to(state=all_states.admin.delete_hole)
+    else:
+        number = hole.number
+        par = hole.par
+        difficulty = hole.difficulty
+        context.dialog_data.update(
+            hole=hole,
+            number=number,
+            par=par,
+            difficulty=difficulty,
+        )
+        await manager.switch_to(state=all_states.admin.info_hole)
+
+
+async def on_entered_number(
+        m: Message,
+        widget: Any,
+        manager: DialogManager,
+        number: str,
+):
+    context = manager.current_context()
+    middleware_data = manager.middleware_data
+    session = middleware_data.get('session')
+    try:
+        number = int(number)
+        if 1 > number or number > 18:
+            await m.reply('Введенное число выходит за пределы допустимого лимита. Номер лунки должен быть от 1 до 18')
+            return
+    except ValueError:
+        await m.reply('Номер лунки должен содержать только цифры')
+        return
+    context.dialog_data.update(number=int(number))
+    await manager.switch_to(all_states.admin.info_hole)
+
+
+async def on_entered_par(
+        m: Message,
+        widget: Any,
+        manager: DialogManager,
+        par: str,
+):
+    context = manager.current_context()
+    try:
+        par = int(par)
+        if 3 > par or par > 5:
+            await m.reply('Введенное число выходит за пределы допустимого лимита. Пар лунки должен быть от 3 до 5')
+            return
+    except ValueError:
+        await m.reply('Пар лунки должен содержать только цифры')
+        return
+    context.dialog_data.update(par=int(par))
+    await manager.switch_to(all_states.admin.info_hole)
+
+
+async def on_entered_difficulty(
+        m: Message,
+        widget: Any,
+        manager: DialogManager,
+        difficulty: str,
+):
+    context = manager.current_context()
+    try:
+        difficulty = int(difficulty)
+        if 1 > difficulty or difficulty > 18:
+            await m.reply('Введенное число выходит за пределы допустимого лимита.'
+                          ' Сложность лунки должена быть от 1 до 18')
+            return
+    except ValueError:
+        await m.reply('Сложность лунки должна содержать только цифры')
+        return
+    context.dialog_data.update(difficulty=int(difficulty))
+    await manager.switch_to(all_states.admin.info_hole)
+
+
+async def on_confirm_hole(
+        callback: CallbackQuery,
+        button: Button,
+        manager: DialogManager,
+):
+    # region получаем промежуточные данные
+    middleware_data = manager.middleware_data
+    session = middleware_data.get('session')
+    context = manager.current_context()
+    course = context.dialog_data.get('course')
+    # endregion
+    hole_action = context.dialog_data.get('hole_action')
+    if hole_action == AdminKB.edit_holes[1]:
+        hole_dict = context.dialog_data.get('hole')
+        hole: Hole = Hole.model_validate(hole_dict)
+
+        number = context.dialog_data.get('number')
+        par = context.dialog_data.get('par')
+        difficulty = context.dialog_data.get('difficulty')
+        update_hole: UpdateHolePartial = UpdateHolePartial(
+            number=number,
+            par=par,
+            difficulty=difficulty,
+            id_course=course['id']
+        )
+        await all_services.hole.partial_update_hole(
+            session=session,
+            hole_id=hole.id,
+            data=update_hole.model_dump(exclude_none=True, exclude_unset=True)
+        )
+        await manager.switch_to(all_states.admin.show_holes)
+
+    elif hole_action == AdminKB.create_hole[1]:
+        number = context.dialog_data.get('number')
+        par = context.dialog_data.get('par')
+        difficulty = context.dialog_data.get('difficulty')
+        if len(course['holes']) < 18:
+            try:
+                create_hole: CreateHole = CreateHole(
+                    number=number,
+                    par=par,
+                    difficulty=difficulty,
+                    id_course=course['id']
+                )
+            except ValueError:
+                await callback.message.answer('Не все параметры заполнены')
+                return
+            await all_services.hole.create_hole(
+                session=session,
+                data=create_hole.model_dump(exclude_none=True, exclude_unset=True)
+            )
+
+            await manager.switch_to(all_states.admin.info_course)
+        else:
+            await callback.message.answer('На одном поле максимум 18 лунок!')
+            return
+    elif hole_action == AdminKB.delete_holes[1]:
+        hole_dict = context.dialog_data.get('hole')
+        await all_services.hole.delete_hole(
+            session=session,
+            hole_id=hole_dict.id
+        )
+        # course_dict = await all_services.course.get_course_by_id_with_holes(
+        #     session=session,
+        #     course_id=course['id']
+        # )
+        # holes_dict: List[Dict[str, Any]] = sorted(course_dict['holes'], key=lambda x: x['number'])
+        # holes: List[Hole] = [Hole.model_validate(hole) for hole in holes_dict]
+        # context.dialog_data.update(
+        #     holes=holes,
+        #     course=course_dict
+        # )
+        await manager.switch_to(all_states.admin.show_holes)
+
+
+async def on_entered_course_name_for_create(
+        m: Message,
+        widget: Any,
+        manager: DialogManager,
+        course_name: str,
+):
+    context = manager.current_context()
+    middleware_data = manager.middleware_data
+    session = middleware_data.get('session')
+    valid_name = re.sub(r'[^\w\s]', '', course_name)
+    if len(course_name) != len(valid_name):
+        await m.reply('Название должно содержать только буквы и цифры')
+        return
+    create_course: CreateCourse = CreateCourse(name=course_name)
+    await all_services.course.create_course(
+        session=session,
+        data=create_course.model_dump()
+    )
+    context.dialog_data.update(courses_update=True)
+    await manager.switch_to(state=all_states.admin.show_courses)
+
+
+async def on_confirm_delete_course(
+        callback: CallbackQuery,
+        button: Button,
+        manager: DialogManager,
+):
+    context = manager.current_context()
+    middleware_data = manager.middleware_data
+    session = middleware_data.get('session')
+    id_course = context.dialog_data.get('id_course')
+    await all_services.course.delete_course(
+        session=session,
+        course_id=id_course
+    )
+    context.dialog_data.update(courses_update=True)
+    await manager.switch_to(state=all_states.admin.start)
 # endregion Courses

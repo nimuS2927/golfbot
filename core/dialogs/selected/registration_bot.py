@@ -30,7 +30,7 @@ async def on_entered_first_name(
         await m.reply('Имя должно содержать только буквенные символы')
         return
     ctx.dialog_data.update(first_name=first_name)
-    await manager.switch_to(all_states.registration_bot.start)
+    await manager.switch_to(all_states.registration_bot.run)
 
 
 async def on_entered_last_name(
@@ -44,7 +44,7 @@ async def on_entered_last_name(
         await m.reply('Фамилия должна содержать только буквенные символы')
         return
     ctx.dialog_data.update(last_name=last_name)
-    await manager.switch_to(all_states.registration_bot.start)
+    await manager.switch_to(all_states.registration_bot.run)
 
 
 async def on_entered_phone(
@@ -58,7 +58,7 @@ async def on_entered_phone(
         await m.reply('Телефон должен быть в формате 8 ххх ххх хх хх (без пробелов)')
         return
     ctx.dialog_data.update(phone=phone)
-    await manager.switch_to(all_states.registration_bot.start)
+    await manager.switch_to(all_states.registration_bot.run)
 
 
 async def on_entered_handicap(
@@ -78,7 +78,7 @@ async def on_entered_handicap(
         return
 
     ctx.dialog_data.update(handicap=handicap)
-    await manager.switch_to(all_states.registration_bot.start)
+    await manager.switch_to(all_states.registration_bot.run)
 
 
 async def on_entered_confirm(

@@ -35,3 +35,8 @@ class UpdateUserPartial(UserBase):
 class User(UserBase):
     model_config = ConfigDict(from_attributes=True)
     id: int
+
+
+class SuperUser(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    first_name: str = 'супер пользователь'
