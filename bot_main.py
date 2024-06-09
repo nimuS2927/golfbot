@@ -1,6 +1,7 @@
 import asyncio
 import logging
 import logging.config
+import time
 
 import aiohttp
 from aiohttp import ClientSession
@@ -48,6 +49,7 @@ async def main():
     # Настройка базового логирования
 
     # Регистрация действий на начало и окончание работы бота
+    time.sleep(3)
     service = CommonService()
     await service.presets(session=session)
     dp.startup.register(on_start_bot)
