@@ -81,7 +81,7 @@ class GameWindows:
         return Window(
             Format('Топ игроков турнира:'),
             List(
-                Format('{pos}. {item[0]} {item[1]} Удары/Лунки - {item[2]}/{item[3]} шт. Счёт: {item[4]}'),
+                Format('{pos}. {item[0]} {item[1]}:  Удары/Лунки - {item[2]}/{item[3]} шт. Счёт: {item[4]}'),
                 items='totalscores_list'
             ),
             SwitchTo(

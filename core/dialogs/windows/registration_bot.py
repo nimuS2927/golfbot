@@ -20,7 +20,7 @@ class RegistrationBotWindows:
     @staticmethod
     def start_registration_bot_window():
         return Window(
-            Const('Вас приветствует Бот гольф-клуба "Ваше название"!'
+            Const('Вас приветствует гольф-клуб "Forest Hills"!'
                   ' Вы не зарегистрированный пользователь, хотите пройти регистрацию?'),
             Button(
                 Format(f'{MainKB.registration_bot[0]}'),

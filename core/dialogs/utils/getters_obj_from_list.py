@@ -17,7 +17,8 @@ def get_obj_by_attribute(objs: List[Union[*OBJS]], attribute: str, value: Any) -
 
 
 def get_obj_by_key(objs: List[Dict[str, Any]], key: str, value: Any) -> Optional[Dict[str, Any]]:
-    for obj in objs:
-        if obj.get(key) == value:
-            return obj
+    if objs:
+        for obj in objs:
+            if obj.get(key) == value:
+                return obj
     return None

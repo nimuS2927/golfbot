@@ -144,7 +144,7 @@ async def on_entered_impacts(
     # region Данные из контекста (Общий счет, Счета по лункам, турнир, пользователь, лунки)
     context = manager.current_context()
     impacts_list = context.dialog_data.get('impacts_list')
-    impacts = impacts_list[item_id][1]
+    impacts = impacts_list[item_id - 1][1]
     scores_dict: List[dict] = context.dialog_data.get('scores')
     scores: List[Score] = [Score.model_validate(i_dict) for i_dict in scores_dict]
     total_score_dict: dict = context.dialog_data.get('total_score')

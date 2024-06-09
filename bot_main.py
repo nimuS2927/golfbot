@@ -12,6 +12,7 @@ from core.config import c_bot
 from core.config_logging import LOGGING
 from core.dialogs.services.common import CommonService
 from core.dialogs.windows import all_dialogs
+from core.main.commands import set_commands
 from core.middleware import SessionMiddleware
 from core.main.handlers import client_router
 
@@ -21,6 +22,7 @@ logging.config.dictConfig(LOGGING)
 
 
 async def on_start_bot(bot: Bot):
+    await set_commands(bot)
     await bot.send_message(chat_id=1817810653, text=f'Bot started')
 
 
