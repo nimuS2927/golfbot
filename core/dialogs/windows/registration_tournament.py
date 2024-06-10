@@ -46,7 +46,7 @@ class RegistrationTournamentWindows:
             Format('''Турнир "{tournament.name}".
 Стартует {tournament.start} и заканчивается {tournament.end}.
 Максимальное число флайтов {tournament.max_flights}.
-Тип турнира {tournament.types}
+Тип турнира {tournament.type}
 HCP = {tournament.hcp}
                         '''),
             Button(
