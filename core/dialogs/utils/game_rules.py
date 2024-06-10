@@ -1,3 +1,6 @@
+import math
+
+
 def stableford(
         impacts: int,
         par: int,
@@ -34,4 +37,4 @@ def stableford(
 
 
 def stroke_play_nett(total_impacts: int, handicap: int, hcp: int):
-    return total_impacts - round(handicap * hcp / 100)
+    return total_impacts - math.ceil(handicap * hcp / 100)

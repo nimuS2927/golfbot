@@ -138,6 +138,37 @@ class AdminGetter:
         }
 
     @staticmethod
+    async def get_tournament_for_edit(
+            dialog_manager: DialogManager,
+            **middleware_data
+    ):
+        # region получаем промежуточные данные
+        middleware_data = dialog_manager.middleware_data
+        session = middleware_data.get('session')
+        dialog_data = dialog_manager.dialog_data
+        tournament = dialog_data.get('tournament')
+        tournament_name = dialog_data.get('tournament_name')
+        tournament_type = dialog_data.get('tournament_type')
+        tournament_flights = dialog_data.get('tournament_flights')
+        course_name = dialog_data.get('course_name')
+        id_course = dialog_data.get('id_course')
+        start_day = dialog_data.get('start_day')
+        end_day = dialog_data.get('end_day')
+        hcp = dialog_data.get('hcp')
+        # endregion
+        # endregion
+        return {
+            'tournament': tournament,
+            'tournament_name': tournament_name,
+            'tournament_type': tournament_type,
+            'tournament_flights': tournament_flights,
+            'course_name': course_name,
+            'start_day': start_day,
+            'end_day': end_day,
+            'hcp': hcp,
+        }
+
+    @staticmethod
     async def get_tournament_types(
             dialog_manager: DialogManager,
             **middleware_data
@@ -305,6 +336,7 @@ class AdminGetter:
         context.dialog_data.update(
             courses_list=courses_list,
             courses_update=courses_update,
+            courses=courses,
         )
         return {'courses': courses, 'courses_list': courses_list}
 

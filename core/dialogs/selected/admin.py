@@ -172,7 +172,12 @@ async def on_start_tournament(
     context = manager.current_context()
     tournament_id = context.dialog_data.get('tournament_id')
     tournament_dict = context.dialog_data.get('tournament')
-    tournament: TournamentWithCourse = TournamentWithCourse.model_validate(tournament_dict)
+    if not tournament_dict:
+        tournament_dict = await all_services.tournament.get_tournament_by_id(
+            session=session,
+            tournament_id=tournament_id,
+        )
+    tournament: Tournament = Tournament.model_validate(tournament_dict)
     # endregion
     if tournament.status is False:
         tournament = await all_services.tournament.distributed_users_in_tournament(
@@ -181,10 +186,17 @@ async def on_start_tournament(
         )
         if tournament:
             manager.dialog_data.update(update_status=True)
-            await callback.message.answer('Турнир запущен!!!')
+            await callback.message.answer('Пользователи распределены по флайтам. Турнир запущен!!!')
             await manager.switch_to(state=all_states.admin.info_tournament)
     else:
-        await callback.message.answer('Этот турнир уже запущен!')
+        tournament = await all_services.tournament.distributed_users_in_tournament(
+            session=session,
+            tournament_id=tournament_id
+        )
+        if tournament:
+            manager.dialog_data.update(update_status=True)
+            await callback.message.answer('Обновлено распределение пользователей по флайтам. Турнир запущен!!!')
+            await manager.switch_to(state=all_states.admin.info_tournament)
         await manager.switch_to(state=all_states.admin.info_tournament)
 
 
@@ -389,8 +401,27 @@ async def on_create_tournaments(
         manager: DialogManager,
 ):
     context = manager.current_context()
+
     action = button.widget_id
     context.dialog_data.update(action=action)
+    tournament_name = ''
+    tournament_type = ''
+    tournament_flights = ''
+    course_name = ''
+    id_course = ''
+    start_day = ''
+    end_day = ''
+    hcp = ''
+    context.dialog_data.update(
+        tournament_name=tournament_name,
+        tournament_type=tournament_type,
+        tournament_flights=tournament_flights,
+        course_name=course_name,
+        id_course=id_course,
+        start_day=start_day,
+        end_day=end_day,
+        hcp=hcp,
+    )
     await manager.switch_to(state=all_states.admin.edit_tournament)
 
 

@@ -234,10 +234,10 @@ async def on_entered_impacts(
             if total_score.total == 0:
                 total_score.total = stroke_play_nett(total_impacts=total_cur, handicap=handicap, hcp=tournament.hcp)
             else:
-                total_score.total += total_cur
+                total_score.total = total_cur
     # endregion
     data_update_totalscore_partial: UpdateTotalScorePartial = UpdateTotalScorePartial(
-        total=total_cur
+        total=total_score.total
     )
     await all_services.totalscores.partial_update_totalscore(
         session=session,

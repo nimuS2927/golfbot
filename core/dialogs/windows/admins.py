@@ -328,7 +328,7 @@ HCP: {hcp}'''),
                 ),
             ),
             state=all_states.admin.edit_tournament,
-            getter=g_admin.get_tournament
+            getter=g_admin.get_tournament_for_edit
         )
 
     @staticmethod

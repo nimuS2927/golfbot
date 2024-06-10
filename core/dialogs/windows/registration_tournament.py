@@ -44,9 +44,10 @@ class RegistrationTournamentWindows:
     def info_registration_tournament_window():
         return Window(
             Format('''Турнир "{tournament.name}".
-    Стартует {tournament.start} и заканчивается {tournament.end}.
-    Максимальное число флайтов {tournament.max_flights}.
-    HCP = {tournament.hcp}
+Стартует {tournament.start} и заканчивается {tournament.end}.
+Максимальное число флайтов {tournament.max_flights}.
+Тип турнира {tournament.types}
+HCP = {tournament.hcp}
                         '''),
             Button(
                 Format(f'{RegistrationTournamentKB.confirm[0]}'),
