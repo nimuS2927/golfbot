@@ -30,7 +30,7 @@ class MainMenuWindow:
     @staticmethod
     def main_window():
         return Window(
-            Const('Вас приветствует гольф-клуб "Forest Hills"! Выберите интересующий вас пункт...'),
+            Const('Вас приветствует Гольф Калькулятор «Петергоф»'),
             Button(
                 Format(f'{MainKB.registration_tournament[0]}'),
                 id=MainKB.registration_tournament[1],
