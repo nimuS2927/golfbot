@@ -15,7 +15,7 @@ from core.dialogs.getters import g_admin, g_tournament
 from core.dialogs.states import all_states
 from core.dialogs.utils import alphabet
 import locale
-locale.setlocale(locale.LC_ALL, "")
+locale.setlocale(locale.LC_ALL, "ru_RU")
 
 
 class AdminWindows:
