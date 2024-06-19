@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, date
 import re
 from typing import Any, List, Optional, Dict
 
@@ -286,89 +286,41 @@ async def on_entered_course_name(
     await manager.switch_to(state=all_states.admin.edit_tournament)
 
 
-async def on_entered_start(
-        m: Message,
+async def on_selected_start_date(
+        callback: CallbackQuery,
         widget: Any,
         manager: DialogManager,
-        start_day: str,
+        selected_date: date,
 ):
     context = manager.current_context()
-    if not (
-            re.fullmatch(r'^20[23][0-9]-[01][0-9]-[0-3][0-9] [0-2][0-9]:[0-6][0-9]$', start_day.strip()) or
-            re.fullmatch(r'^20[23][0-9]-[01][0-9]-[0-3][0-9]$', start_day.strip()) or
-            re.fullmatch(r'^20[23][0-9]-[01][0-9]-[0-3][0-9] [0-2][0-9]:[0-6][0-9]:[0-6][0-9]$', start_day.strip())
-    ):
-        await m.reply('Дата не соответствует заданному формату')
-        return
-    try:
-        if re.fullmatch(r'^20[23][0-9]-[01][0-9]-[0-3][0-9]$', start_day.strip()):
-            start_day += ' 00:00:00'
-        elif re.fullmatch(r'^20[23][0-9]-[01][0-9]-[0-3][0-9] [0-2][0-9]:[0-6][0-9]$', start_day.strip()):
-            start_day += ':00'
-        input_date = datetime.strptime(start_day.strip(), '%Y-%m-%d %H:%M:%S')
-        end_day = context.dialog_data.get('end_day')
-        if end_day.strip():
-            if not isinstance(end_day, datetime):
-                try:
-                    end_day = datetime.strptime(end_day, '%Y-%m-%d %H:%M:%S')
-                except ValueError:
-                    end_day = datetime.strptime(end_day, '%Y-%m-%dT%H:%M:%S')
-            if end_day < input_date:
-                await m.reply(f'Дата начала турнира {input_date.strftime("%Y-%m-%d %H:%M:%S")!r}'
-                              f' не может быть больше даты конца турнира {end_day.strftime("%Y-%m-%d %H:%M:%S")!r}')
-                return
-    except ValueError:
-        await m.reply(f'Такой даты {start_day.strip()!r} не существует')
-        return
-    today = datetime.today()
-    if today > input_date:
-        await m.reply(
-            f'Дата старта турнира {start_day.strip()!r} не может быть раньше сегодняшнего дня {today.strftime("%Y-%m-%d %H:%M:%S")!r}')
-        return
+    input_date = datetime(
+        year=selected_date.year,
+        month=selected_date.month,
+        day=selected_date.day,
+        hour=0,
+        minute=0,
+        second=0
+    )
     datetime_str = input_date.strftime('%Y-%m-%d %H:%M:%S')
     context.dialog_data.update(start_day=datetime_str)
     await manager.switch_to(state=all_states.admin.edit_tournament)
 
 
-async def on_entered_end(
-        m: Message,
+async def on_selected_end_date(
+        callback: CallbackQuery,
         widget: Any,
         manager: DialogManager,
-        end_day: str,
+        selected_date: date,
 ):
     context = manager.current_context()
-    if not (
-            re.fullmatch(r'^20[23][0-9]-[01][0-9]-[0-3][0-9] [0-2][0-9]:[0-6][0-9]$', end_day.strip()) or
-            re.fullmatch(r'^20[23][0-9]-[01][0-9]-[0-3][0-9]$', end_day.strip()) or
-            re.fullmatch(r'^20[23][0-9]-[01][0-9]-[0-3][0-9] [0-2][0-9]:[0-6][0-9]:[0-6][0-9]$', end_day.strip())
-    ):
-        await m.reply('Дата не соответствует заданному формату')
-        return
-    try:
-        if re.fullmatch(r'^20[23][0-9]-[01][0-9]-[0-3][0-9]$', end_day.strip()):
-            end_day += ' 23:59:59'
-        elif re.fullmatch(r'^20[23][0-9]-[01][0-9]-[0-3][0-9] [0-2][0-9]:[0-6][0-9]$', end_day.strip()):
-            end_day += ':59'
-        input_date = datetime.strptime(end_day.strip(), '%Y-%m-%d %H:%M:%S')
-        start_day = context.dialog_data.get('start_day')
-        if start_day.strip():
-            if not isinstance(start_day, datetime):
-                try:
-                    start_day = datetime.strptime(start_day, '%Y-%m-%d %H:%M:%S')
-                except ValueError:
-                    start_day = datetime.strptime(start_day, '%Y-%m-%dT%H:%M:%S')
-            if start_day > input_date:
-                await m.reply(f'Дата конца турнира {input_date.strftime("%Y-%m-%d %H:%M:%S")!r}'
-                              f' не может быть меньше даты начала турнира {start_day.strftime("%Y-%m-%d %H:%M:%S")!r}')
-                return
-    except ValueError:
-        await m.reply(f'Такой даты {end_day.strip()!r} не существует')
-        return
-    today = datetime.today()
-    if today > input_date:
-        await m.reply(
-            f'Дата старта турнира {end_day.strip()!r} не может быть раньше сегодняшнего дня {today.strftime("%Y-%m-%d %H:%M:%S")!r}')
-        return
+    input_date = datetime(
+        year=selected_date.year,
+        month=selected_date.month,
+        day=selected_date.day,
+        hour=23,
+        minute=59,
+        second=59
+    )
     datetime_str = input_date.strftime('%Y-%m-%d %H:%M:%S')
     context.dialog_data.update(end_day=datetime_str)
     await manager.switch_to(state=all_states.admin.edit_tournament)

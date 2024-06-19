@@ -1,18 +1,24 @@
 import operator
 
 from aiogram_dialog import Window, Data, DialogManager, ShowMode, Dialog
-from aiogram_dialog.widgets.kbd import Cancel, Back, Button, SwitchTo, Row, Select
+from aiogram_dialog.widgets.kbd import Cancel, Back, Button, SwitchTo, Row, Select, Calendar
 from aiogram_dialog.widgets.text import Const, Format, List
 from aiogram_dialog.widgets.media import StaticMedia, DynamicMedia
 from aiogram_dialog.widgets.input import TextInput
 
 from core.config import c_project
+from core.dialogs.utils.custom_calendar import calendar_config
 from core.main.keyboards.buttons import AdminKB, MainKB
 from core.dialogs import keyboards
 from core.dialogs.selected import admin as s_admin
 from core.dialogs.getters import g_admin, g_tournament
 from core.dialogs.states import all_states
 from core.dialogs.utils import alphabet
+import locale
+locale.setlocale(
+    category=locale.LC_ALL,
+    locale="Russian"  # Note: do not use "de_DE" as it doesn't work
+)
 
 
 class AdminWindows:
@@ -386,12 +392,11 @@ HCP: {hcp}'''),
     @staticmethod
     def entered_start_window():
         return Window(
-            Const('Введите дату начала турнира в формате YYYY-MM-DD HH:MM:SS '
-                  '(часы, минуты и секунды опционально, если не указано автоматически будет 00:00:00 : '
-                  '* время задается обязательно в формате HH:MM или HH:MM:SS : '),
-            TextInput(
-                id='start_day',
-                on_success=s_admin.on_entered_start
+            Const('Выберите дату начала турнира'),
+            Calendar(
+                id='calendar',
+                on_click=s_admin.on_selected_start_date,
+                config=calendar_config
             ),
             state=all_states.admin.entered_start,
         )
@@ -399,12 +404,11 @@ HCP: {hcp}'''),
     @staticmethod
     def entered_end_window():
         return Window(
-            Const('Введите дату конца турнира в формате YYYY-MM-DD HH:MM:SS '
-                  '(часы и минуты опционально, если не указано автоматически будет 23:59:59'
-                  '* время задается обязательно в формате HH:MM или HH:MM:SS : '),
-            TextInput(
-                id='end_day',
-                on_success=s_admin.on_entered_end
+            Const('Выберите дату конца турнира'),
+            Calendar(
+                id='calendar',
+                on_click=s_admin.on_selected_end_date,
+                config=calendar_config
             ),
             state=all_states.admin.entered_end,
         )
